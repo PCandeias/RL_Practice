@@ -141,7 +141,7 @@ class DQNAgent(object):
 
 class CNNDQNAgent(DQNAgent):
     def __init__(self, *args, **kwargs):
-        self.n_saved_frames = 1
+        self.n_saved_frames = 4
         super(CNNDQNAgent, self).__init__(*args, **kwargs)
         self.last_frames = [np.zeros(self.observation_size) for i in range(self.n_saved_frames)]
         self.cur_frame = 0
