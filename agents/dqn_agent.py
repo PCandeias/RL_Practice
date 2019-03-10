@@ -18,10 +18,10 @@ class DQNAgent(object):
                  eps_eval=0.001,
                  eps_decay_steps=1000000,
                  alpha=0.00025, 
-                 memory_size=1000000,
+                 memory_size=100000,
                  batch_size=32, 
                  freeze_target_frequency=10000,
-                 min_history_size=50000, 
+                 min_history_size=50000,
                  double_q=True,
                  priority_replay=True,
                  verbose=False, 
@@ -84,6 +84,7 @@ class DQNAgent(object):
             return
         self.replay_count += 1
         # Get a batch of state-transitions
+        print(self.batch_size)
         if self.priority_replay:
             mini_batch, idxs, weights = self.memory.sample(self.batch_size)
             weights = weights ** self.priority_beta
@@ -91,10 +92,12 @@ class DQNAgent(object):
             mini_batch, idxs = self.memory.sample(self.batch_size)
             weights = np.ones(self.batch_size)
         states, actions, rewards, next_states, done = zip(*mini_batch)
-        y_batch = self.model.predict(np.array(states, copy=False))
-        model_pred_after = self.model.predict(np.array(next_states, copy=False))
-        target_pred_after = self.target_model.predict(np.array(next_states, copy=False))
+        states = np.stack(states, axis=3).T
+        next_states = np.stack(next_states, axis=3).T
+        y_batch = self.model.predict(states)
+        target_pred_after = self.target_model.predict(next_states)
         if self.double_q:
+            model_pred_after = self.model.predict(next_states)
             q_values = np.array(rewards, copy=False) + self.gamma * np.invert(np.array(done, copy=False)) * target_pred_after[np.arange(self.batch_size),np.argmax(model_pred_after, axis=1)]
         else:
             q_values = np.array(rewards, copy=False) + self.gamma * np.invert(np.array(done, copy=False)) * np.max(target_pred_after, axis=1)
@@ -140,16 +143,37 @@ class CNNDQNAgent(DQNAgent):
     def __init__(self, *args, **kwargs):
         self.n_saved_frames = 1
         super(CNNDQNAgent, self).__init__(*args, **kwargs)
-        self.last_frames = [np.zeros(self.observation_size[:2]) for i in range(self.n_saved_frames)]
+        self.last_frames = [np.zeros(self.observation_size) for i in range(self.n_saved_frames)]
         self.cur_frame = 0
 
     def _build_model(self, alpha=0.01):
         input_shape = self.observation_size[:2] + (self.n_saved_frames,)
         self.model = Sequential()
-        self.model.add(Conv2D(32, kernel_size=4, input_shape=input_shape, activation='relu'))
+        self.model.add(Conv2D(32, kernel_size=8, input_shape=input_shape, activation='relu'))
         self.model.add(Conv2D(64, kernel_size=4, activation='relu'))
         self.model.add(Conv2D(64, kernel_size=3, activation='relu'))
         self.model.add(Flatten())
         self.model.add(Dense(units=128, activation='tanh'))
         self.model.add(Dense(units=self.action_size, activation='linear'))
         self.model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=alpha))
+
+    def begin_episode(self, observation):
+        """
+        """
+        self.last_frames[self.cur_frame] = observation
+        self.cur_frame = (self.cur_frame + 1) % self.n_saved_frames
+        self.last_observation = [self.last_frames[(self.cur_frame + i) % self.n_saved_frames] for i in range(self.n_saved_frames)]
+        self.last_action = self._select_action(self.last_observation, self.eps)
+        return self.last_action
+
+    def step(self, reward, observation):
+        self.last_frames[self.cur_frame] = observation
+        self.cur_frame = (self.cur_frame + 1) % self.n_saved_frames
+        n_observation = [self.last_frames[(self.cur_frame + i) % self.n_saved_frames] for i in range(self.n_saved_frames)]
+        if not self.eval_mode:
+            self._store_transition(self.last_observation, self.last_action, reward, n_observation, False)
+            self._train_step()
+
+        self.last_observation = n_observation
+        self.last_action = self._select_action(n_observation, self.eps if not self.eval_mode else self.eps_eval)
+        return self.last_action

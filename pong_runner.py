@@ -8,19 +8,20 @@ from keras import backend as K
 
 
 def preprocess_obs(obs):
-    return np.mean(obs, axis=2)[35:195][::2,::2]
+    return np.mean(obs, axis=2).astype('uint8')[35:195][::2,::2]
 
 n_episodes = 20000
 render = False
 
 env = gym.make('Pong-v0')
 print(env.observation_space.shape)
-agent = CNNDQNAgent(env.observation_space.shape, env.action_space.n, batch_size=1)
+agent = CNNDQNAgent((80,80,1), env.action_space.n)
 l_rewards = deque(maxlen=100)
 
 for i in range(n_episodes):
     done = False
     obs = env.reset()
+    obs = preprocess_obs(obs)
     action = agent.begin_episode(obs)
     total_reward = 0
     while not done:
