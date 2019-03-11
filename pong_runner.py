@@ -15,7 +15,7 @@ render = False
 
 env = gym.make('Pong-v0')
 print(env.observation_space.shape)
-agent = CNNDQNAgent((80,80,1), env.action_space.n)
+agent = CNNDQNAgent((80,80,1), env.action_space.n, train_frequency=4)
 l_rewards = deque(maxlen=100)
 
 for i in range(n_episodes):

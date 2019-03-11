@@ -187,6 +187,10 @@ class CNNDQNAgent(DQNAgent):
         self.eps = max(self.eps - self.eps_decay, self.eps_min) # update eps
         return self.last_action
 
+    def _get_predictions(self, observation):
+        t_observation = np.stack([observation], axis=3).T
+        return self.model.predict(t_observation)
+
     def _train_step(self):
         self.cur_step += 1
         if len(self.memory) < self.min_history_size or (self.cur_step % self.train_frequency != 0):

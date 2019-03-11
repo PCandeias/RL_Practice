@@ -8,7 +8,7 @@ n_episodes = 2000
 render = False
 
 env = gym.make('LunarLander-v2')
-agent = DQNAgent(8, 4, alpha=0.00025, eps_decay_steps=300000)
+agent = DQNAgent(8, 4, alpha=0.00025, eps_decay_steps=100000, min_history_size=10000)
 l_rewards = deque(maxlen=100)
 
 for i in range(n_episodes):

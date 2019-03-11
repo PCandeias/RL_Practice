@@ -16,6 +16,7 @@ __init__	utility/random_buffer.py	/^    def __init__(self, max_len):$/;"	m	class
 __len__	utility/random_buffer.py	/^    def __len__(self):$/;"	m	class:ReplayBuffer	file:
 _build_model	agents/dqn_agent.py	/^    def _build_model(self, alpha=0.01):$/;"	m	class:CNNDQNAgent
 _build_model	agents/dqn_agent.py	/^    def _build_model(self, alpha=0.01):$/;"	m	class:DQNAgent
+_get_predictions	agents/dqn_agent.py	/^    def _get_predictions(self, observation):$/;"	m	class:CNNDQNAgent
 _get_predictions	agents/dqn_agent.py	/^    def _get_predictions(self, observation):$/;"	m	class:DQNAgent
 _load_model	agents/dqn_agent.py	/^    def _load_model(self, load_filename):$/;"	m	class:DQNAgent
 _propagate	utility/random_buffer.py	/^    def _propagate(self, s_idx, dif):$/;"	m	class:PriorityReplayBuffer
@@ -23,6 +24,7 @@ _retrieve	utility/random_buffer.py	/^    def _retrieve(self, s_idx, val):$/;"	m	
 _save_model	agents/dqn_agent.py	/^    def _save_model(self, save_filename):$/;"	m	class:DQNAgent
 _select_action	agents/dqn_agent.py	/^    def _select_action(self, observation, eps=None):$/;"	m	class:DQNAgent
 _store_transition	agents/dqn_agent.py	/^    def _store_transition(self, state, action, reward, next_state, done):$/;"	m	class:DQNAgent
+_train_step	agents/dqn_agent.py	/^    def _train_step(self):$/;"	m	class:CNNDQNAgent
 _train_step	agents/dqn_agent.py	/^    def _train_step(self):$/;"	m	class:DQNAgent
 a	test.py	/^            a = agent.step(reward, np.ones(1) * val)$/;"	v
 a	test.py	/^    a = agent.begin_episode(np.ones(1) * 0)$/;"	v
@@ -30,9 +32,9 @@ action	gym_lunar.py	/^            action = agent.step(reward, obs)$/;"	v
 action	gym_lunar.py	/^    action = agent.begin_episode(obs)$/;"	v
 action	gym_runner.py	/^            action = agent.step(reward, obs)$/;"	v
 action	gym_runner.py	/^    action = agent.begin_episode(obs)$/;"	v
-agent	gym_lunar.py	/^agent = DQNAgent(8, 4, alpha=0.00025, eps_decay_steps=300000)$/;"	v
+agent	gym_lunar.py	/^agent = DQNAgent(8, 4, alpha=0.00025, eps_decay_steps=100000, min_history_size=10000)$/;"	v
 agent	gym_runner.py	/^agent = DQNAgent(2, 3, alpha=0.00025, eps_decay_steps=1000000)$/;"	v
-agent	pong_runner.py	/^agent = CNNDQNAgent((80,80,1), env.action_space.n)$/;"	v
+agent	pong_runner.py	/^agent = CNNDQNAgent((80,80,1), env.action_space.n, train_frequency=4)$/;"	v
 agent	test.py	/^agent = DQNAgent(1,9, decay_steps=20000)$/;"	v
 append	utility/random_buffer.py	/^    def append(self, element):$/;"	m	class:PriorityReplayBuffer
 append	utility/random_buffer.py	/^    def append(self, element):$/;"	m	class:ReplayBuffer
