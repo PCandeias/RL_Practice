@@ -19,9 +19,10 @@ class DQNAgent(object):
                  eps_decay_steps=1000000,
                  alpha=0.00025, 
                  memory_size=100000,
+                 train_frequency=1,
                  batch_size=32, 
                  freeze_target_frequency=10000,
-                 min_history_size=50000,
+                 min_history_size=5000000,
                  double_q=True,
                  priority_replay=True,
                  verbose=False, 
@@ -50,6 +51,8 @@ class DQNAgent(object):
         self.priority_alpha = 1.0
         self.priority_beta = 1.0
         self._build_model(alpha)
+        self.train_frequency = train_frequency
+        self.cur_step = 0
         if double_q:
             self.target_model = utility.copy_model(self.model) # avoid using target Q-network for first iterations
         else:
@@ -80,11 +83,10 @@ class DQNAgent(object):
         return np.random.randint(0, self.action_size) if eps >= np.random.rand() else np.argmax(self._get_predictions(observation))
 
     def _train_step(self):
-        if len(self.memory) < self.min_history_size:
+        if len(self.memory) < self.min_history_size or (self.cur_step % self.train_frequency != 0):
             return
         self.replay_count += 1
         # Get a batch of state-transitions
-        print(self.batch_size)
         if self.priority_replay:
             mini_batch, idxs, weights = self.memory.sample(self.batch_size)
             weights = weights ** self.priority_beta
@@ -92,8 +94,8 @@ class DQNAgent(object):
             mini_batch, idxs = self.memory.sample(self.batch_size)
             weights = np.ones(self.batch_size)
         states, actions, rewards, next_states, done = zip(*mini_batch)
-        states = np.stack(states, axis=3).T
-        next_states = np.stack(next_states, axis=3).T
+        states = np.array(states)
+        next_states = np.array(next_states)
         y_batch = self.model.predict(states)
         target_pred_after = self.target_model.predict(next_states)
         if self.double_q:
@@ -111,7 +113,7 @@ class DQNAgent(object):
         y_batch[np.arange(self.batch_size),actions] = q_values
         # Train the model
         self.model.fit(np.array(states), np.array(y_batch), batch_size=self.batch_size, sample_weight=weights, verbose=self.verbose)
-        self.eps = max(self.eps - self.eps_decay, self.eps_min) # update eps
+
         if self.replay_count % self.freeze_target_frequency == 0:
             self.target_model.set_weights(self.model.get_weights())
 
@@ -121,17 +123,21 @@ class DQNAgent(object):
     def begin_episode(self, observation):
         """
         """
+        self.cur_step = 0
         self.last_observation = observation
         self.last_action = self._select_action(observation, self.eps)
+        self.eps = max(self.eps - self.eps_decay, self.eps_min) # update eps
         return self.last_action
 
     def step(self, reward, observation):
         if not self.eval_mode:
             self._store_transition(self.last_observation, self.last_action, reward, observation, False)
             self._train_step()
+        self.cur_step += 1
 
         self.last_observation = observation
         self.last_action = self._select_action(observation, self.eps if not self.eval_mode else self.eps_eval)
+        self.eps = max(self.eps - self.eps_decay, self.eps_min) # update eps
         return self.last_action
 
     def end_episode(self, reward):
@@ -164,6 +170,7 @@ class CNNDQNAgent(DQNAgent):
         self.cur_frame = (self.cur_frame + 1) % self.n_saved_frames
         self.last_observation = [self.last_frames[(self.cur_frame + i) % self.n_saved_frames] for i in range(self.n_saved_frames)]
         self.last_action = self._select_action(self.last_observation, self.eps)
+        self.eps = max(self.eps - self.eps_decay, self.eps_min) # update eps
         return self.last_action
 
     def step(self, reward, observation):
@@ -173,7 +180,45 @@ class CNNDQNAgent(DQNAgent):
         if not self.eval_mode:
             self._store_transition(self.last_observation, self.last_action, reward, n_observation, False)
             self._train_step()
+        self.cur_step += 1
 
         self.last_observation = n_observation
         self.last_action = self._select_action(n_observation, self.eps if not self.eval_mode else self.eps_eval)
+        self.eps = max(self.eps - self.eps_decay, self.eps_min) # update eps
         return self.last_action
+
+    def _train_step(self):
+        self.cur_step += 1
+        if len(self.memory) < self.min_history_size or (self.cur_step % self.train_frequency != 0):
+            return
+        self.replay_count += 1
+        # Get a batch of state-transitions
+        if self.priority_replay:
+            mini_batch, idxs, weights = self.memory.sample(self.batch_size)
+            weights = weights ** self.priority_beta
+        else:
+            mini_batch, idxs = self.memory.sample(self.batch_size)
+            weights = np.ones(self.batch_size)
+        states, actions, rewards, next_states, done = zip(*mini_batch)
+        states = np.stack(states, axis=3).T
+        next_states = np.stack(next_states, axis=3).T
+        y_batch = self.model.predict(states)
+        target_pred_after = self.target_model.predict(next_states)
+        if self.double_q:
+            model_pred_after = self.model.predict(next_states)
+            q_values = np.array(rewards, copy=False) + self.gamma * np.invert(np.array(done, copy=False)) * target_pred_after[np.arange(self.batch_size),np.argmax(model_pred_after, axis=1)]
+        else:
+            q_values = np.array(rewards, copy=False) + self.gamma * np.invert(np.array(done, copy=False)) * np.max(target_pred_after, axis=1)
+
+        # Update priority values
+        if self.priority_replay:
+            errors = (np.abs(y_batch[np.arange(self.batch_size),actions] - q_values) + 1e-8) ** self.priority_alpha
+            for i in range(self.batch_size):
+                self.memory.update(idxs[i], errors[i])
+
+        y_batch[np.arange(self.batch_size),actions] = q_values
+        # Train the model
+        self.model.fit(np.array(states), np.array(y_batch), batch_size=self.batch_size, sample_weight=weights, verbose=self.verbose)
+
+        if self.replay_count % self.freeze_target_frequency == 0:
+            self.target_model.set_weights(self.model.get_weights())
