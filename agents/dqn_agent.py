@@ -22,7 +22,7 @@ class DQNAgent(object):
                  train_frequency=1,
                  batch_size=32, 
                  freeze_target_frequency=10000,
-                 min_history_size=5000000,
+                 min_history_size=50000,
                  double_q=True,
                  priority_replay=True,
                  verbose=False, 
@@ -85,6 +85,7 @@ class DQNAgent(object):
     def _train_step(self):
         if len(self.memory) < self.min_history_size or (self.cur_step % self.train_frequency != 0):
             return
+        print("TRAIN")
         self.replay_count += 1
         # Get a batch of state-transitions
         if self.priority_replay:
@@ -123,9 +124,9 @@ class DQNAgent(object):
     def begin_episode(self, observation):
         """
         """
-        self.cur_step = 0
         self.last_observation = observation
         self.last_action = self._select_action(observation, self.eps)
+        self.cur_step += 1
         self.eps = max(self.eps - self.eps_decay, self.eps_min) # update eps
         return self.last_action
 
@@ -133,11 +134,11 @@ class DQNAgent(object):
         if not self.eval_mode:
             self._store_transition(self.last_observation, self.last_action, reward, observation, False)
             self._train_step()
-        self.cur_step += 1
 
         self.last_observation = observation
         self.last_action = self._select_action(observation, self.eps if not self.eval_mode else self.eps_eval)
         self.eps = max(self.eps - self.eps_decay, self.eps_min) # update eps
+        self.cur_step += 1
         return self.last_action
 
     def end_episode(self, reward):
@@ -155,9 +156,9 @@ class CNNDQNAgent(DQNAgent):
     def _build_model(self, alpha=0.01):
         input_shape = self.observation_size[:2] + (self.n_saved_frames,)
         self.model = Sequential()
-        self.model.add(Conv2D(32, kernel_size=8, input_shape=input_shape, activation='relu'))
-        self.model.add(Conv2D(64, kernel_size=4, activation='relu'))
-        self.model.add(Conv2D(64, kernel_size=3, activation='relu'))
+        self.model.add(Conv2D(32, kernel_size=8, strides=4, input_shape=input_shape, activation='relu'))
+        self.model.add(Conv2D(64, kernel_size=4, strides=3, activation='relu'))
+        self.model.add(Conv2D(64, kernel_size=3, strides=3, activation='relu'))
         self.model.add(Flatten())
         self.model.add(Dense(units=128, activation='tanh'))
         self.model.add(Dense(units=self.action_size, activation='linear'))
@@ -170,6 +171,7 @@ class CNNDQNAgent(DQNAgent):
         self.cur_frame = (self.cur_frame + 1) % self.n_saved_frames
         self.last_observation = [self.last_frames[(self.cur_frame + i) % self.n_saved_frames] for i in range(self.n_saved_frames)]
         self.last_action = self._select_action(self.last_observation, self.eps)
+        self.cur_step += 1
         self.eps = max(self.eps - self.eps_decay, self.eps_min) # update eps
         return self.last_action
 
@@ -180,11 +182,11 @@ class CNNDQNAgent(DQNAgent):
         if not self.eval_mode:
             self._store_transition(self.last_observation, self.last_action, reward, n_observation, False)
             self._train_step()
-        self.cur_step += 1
 
         self.last_observation = n_observation
         self.last_action = self._select_action(n_observation, self.eps if not self.eval_mode else self.eps_eval)
         self.eps = max(self.eps - self.eps_decay, self.eps_min) # update eps
+        self.cur_step += 1
         return self.last_action
 
     def _get_predictions(self, observation):
@@ -192,10 +194,10 @@ class CNNDQNAgent(DQNAgent):
         return self.model.predict(t_observation)
 
     def _train_step(self):
-        self.cur_step += 1
         if len(self.memory) < self.min_history_size or (self.cur_step % self.train_frequency != 0):
             return
         self.replay_count += 1
+        print(self.replay_count)
         # Get a batch of state-transitions
         if self.priority_replay:
             mini_batch, idxs, weights = self.memory.sample(self.batch_size)

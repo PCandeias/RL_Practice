@@ -10,12 +10,12 @@ from keras import backend as K
 def preprocess_obs(obs):
     return np.mean(obs, axis=2).astype('uint8')[35:195][::2,::2]
 
-n_episodes = 20000
+n_episodes = 100
 render = False
 
 env = gym.make('Pong-v0')
 print(env.observation_space.shape)
-agent = CNNDQNAgent((80,80,1), env.action_space.n, train_frequency=4)
+agent = CNNDQNAgent((80,80), env.action_space.n, train_frequency=400)
 l_rewards = deque(maxlen=100)
 
 for i in range(n_episodes):
