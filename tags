@@ -34,7 +34,7 @@ action	gym_runner.py	/^            action = agent.step(reward, obs)$/;"	v
 action	gym_runner.py	/^    action = agent.begin_episode(obs)$/;"	v
 agent	gym_lunar.py	/^agent = DQNAgent(8, 4, alpha=0.00025, eps_decay_steps=100000, min_history_size=10000)$/;"	v
 agent	gym_runner.py	/^agent = DQNAgent(2, 3, alpha=0.00025, eps_decay_steps=1000000)$/;"	v
-agent	pong_runner.py	/^agent = CNNDQNAgent((80,80), env.action_space.n, train_frequency=400)$/;"	v
+agent	pong_runner.py	/^agent = CNNDQNAgent((80,80), env.action_space.n, train_frequency=4)$/;"	v
 agent	test.py	/^agent = DQNAgent(1,9, decay_steps=20000)$/;"	v
 append	utility/random_buffer.py	/^    def append(self, element):$/;"	m	class:PriorityReplayBuffer
 append	utility/random_buffer.py	/^    def append(self, element):$/;"	m	class:ReplayBuffer

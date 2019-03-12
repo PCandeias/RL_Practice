@@ -157,10 +157,9 @@ class CNNDQNAgent(DQNAgent):
         input_shape = self.observation_size[:2] + (self.n_saved_frames,)
         self.model = Sequential()
         self.model.add(Conv2D(32, kernel_size=8, strides=4, input_shape=input_shape, activation='relu'))
-        self.model.add(Conv2D(64, kernel_size=4, strides=3, activation='relu'))
-        self.model.add(Conv2D(64, kernel_size=3, strides=3, activation='relu'))
+        self.model.add(Conv2D(64, kernel_size=4, strides=2, activation='relu'))
         self.model.add(Flatten())
-        self.model.add(Dense(units=128, activation='tanh'))
+        self.model.add(Dense(units=256, activation='tanh'))
         self.model.add(Dense(units=self.action_size, activation='linear'))
         self.model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=alpha))
 
