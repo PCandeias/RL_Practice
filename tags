@@ -30,9 +30,12 @@ a	test.py	/^            a = agent.step(reward, np.ones(1) * val)$/;"	v
 a	test.py	/^    a = agent.begin_episode(np.ones(1) * 0)$/;"	v
 action	gym_lunar.py	/^            action = agent.step(reward, obs)$/;"	v
 action	gym_lunar.py	/^    action = agent.begin_episode(obs)$/;"	v
+action	gym_pole.py	/^            action = agent.step(reward, obs)$/;"	v
+action	gym_pole.py	/^    action = agent.begin_episode(obs)$/;"	v
 action	gym_runner.py	/^            action = agent.step(reward, obs)$/;"	v
 action	gym_runner.py	/^    action = agent.begin_episode(obs)$/;"	v
 agent	gym_lunar.py	/^agent = DQNAgent(8, 4, alpha=0.00025, eps_decay_steps=100000, min_history_size=10000)$/;"	v
+agent	gym_pole.py	/^agent = DQNAgent(4, 2, alpha=0.00025, eps_decay_steps=20000, min_history_size=1000, priority_replay=True)$/;"	v
 agent	gym_runner.py	/^agent = DQNAgent(2, 3, alpha=0.00025, eps_decay_steps=1000000)$/;"	v
 agent	pong_runner.py	/^agent = CNNDQNAgent((80,80), env.action_space.n, train_frequency=4)$/;"	v
 agent	test.py	/^agent = DQNAgent(1,9, decay_steps=20000)$/;"	v
@@ -43,22 +46,28 @@ begin_episode	agents/dqn_agent.py	/^    def begin_episode(self, observation):$/;
 copy_model	utility/utility.py	/^def copy_model(model):$/;"	f
 cur_it	test.py	/^    cur_it = 0$/;"	v
 done	gym_lunar.py	/^    done = False$/;"	v
+done	gym_pole.py	/^    done = False$/;"	v
 done	gym_runner.py	/^    done = False$/;"	v
 end_episode	agents/dqn_agent.py	/^    def end_episode(self, reward):$/;"	m	class:DQNAgent
 env	gym_lunar.py	/^env = gym.make('LunarLander-v2')$/;"	v
+env	gym_pole.py	/^env = gym.make('CartPole-v1')$/;"	v
 env	gym_runner.py	/^env = gym.make('MountainCar-v0')$/;"	v
 env	pong_runner.py	/^env = gym.make('Pong-v0')$/;"	v
 file_exists	utility/utility.py	/^def file_exists(filename):$/;"	f
 l_rewards	gym_lunar.py	/^l_rewards = deque(maxlen=100)$/;"	v
+l_rewards	gym_pole.py	/^l_rewards = deque(maxlen=100)$/;"	v
 l_rewards	gym_runner.py	/^l_rewards = deque(maxlen=100)$/;"	v
 l_rewards	pong_runner.py	/^l_rewards = deque(maxlen=100)$/;"	v
 n_episodes	gym_lunar.py	/^n_episodes = 2000$/;"	v
+n_episodes	gym_pole.py	/^n_episodes = 20000$/;"	v
 n_episodes	gym_runner.py	/^n_episodes = 20000$/;"	v
 n_episodes	pong_runner.py	/^n_episodes = 100$/;"	v
 obs	gym_lunar.py	/^    obs = env.reset()$/;"	v
+obs	gym_pole.py	/^    obs = env.reset()$/;"	v
 obs	gym_runner.py	/^    obs = env.reset()$/;"	v
 preprocess_obs	pong_runner.py	/^def preprocess_obs(obs):$/;"	f
 render	gym_lunar.py	/^render = False$/;"	v
+render	gym_pole.py	/^render = False$/;"	v
 render	gym_runner.py	/^render = False$/;"	v
 render	pong_runner.py	/^render = False$/;"	v
 sample	utility/random_buffer.py	/^    def sample(self, n_samples):$/;"	m	class:PriorityReplayBuffer
@@ -66,7 +75,9 @@ sample	utility/random_buffer.py	/^    def sample(self, n_samples):$/;"	m	class:R
 step	agents/dqn_agent.py	/^    def step(self, reward, observation):$/;"	m	class:CNNDQNAgent
 step	agents/dqn_agent.py	/^    def step(self, reward, observation):$/;"	m	class:DQNAgent
 total_reward	gym_lunar.py	/^    total_reward = 0$/;"	v
+total_reward	gym_pole.py	/^    total_reward = 0$/;"	v
 total_reward	gym_runner.py	/^    total_reward = 0$/;"	v
+total_weight	utility/random_buffer.py	/^    def total_weight(self):$/;"	m	class:PriorityReplayBuffer
 update	utility/random_buffer.py	/^    def update(self, idx, p):$/;"	m	class:PriorityReplayBuffer
 val	test.py	/^            val = np.random.randint(0,9)$/;"	v
 val	test.py	/^    val = np.random.randint(0,9)$/;"	v

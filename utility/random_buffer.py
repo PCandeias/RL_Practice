@@ -79,6 +79,8 @@ class PriorityReplayBuffer(ReplayBuffer):
         parent = (s_idx-1) // 2
         self._propagate(parent, dif)
         
+    def total_weight(self):
+        return self.sumtree[0]
 
 
 

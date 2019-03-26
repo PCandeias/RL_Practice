@@ -48,8 +48,10 @@ class DQNAgent(object):
         self.eval_mode = False
         self.double_q = double_q
         self.priority_replay = priority_replay
-        self.priority_alpha = 1.0
-        self.priority_beta = 1.0
+        self.priority_alpha = 0.6
+        self.priority_beta = 0.4
+        priority_beta_decay_steps = 100000
+        self.priority_beta_decay = (1.0 - self.priority_beta) / priority_beta_decay_steps
         self._build_model(alpha)
         self.train_frequency = train_frequency
         self.cur_step = 0
@@ -85,7 +87,6 @@ class DQNAgent(object):
     def _train_step(self):
         if len(self.memory) < self.min_history_size or (self.cur_step % self.train_frequency != 0):
             return
-        print("TRAIN")
         self.replay_count += 1
         # Get a batch of state-transitions
         if self.priority_replay:
@@ -95,8 +96,8 @@ class DQNAgent(object):
             mini_batch, idxs = self.memory.sample(self.batch_size)
             weights = np.ones(self.batch_size)
         states, actions, rewards, next_states, done = zip(*mini_batch)
-        states = np.array(states)
-        next_states = np.array(next_states)
+        states = np.array(states, copy=False)
+        next_states = np.array(next_states, copy=False)
         y_batch = self.model.predict(states)
         target_pred_after = self.target_model.predict(next_states)
         if self.double_q:
@@ -113,10 +114,12 @@ class DQNAgent(object):
 
         y_batch[np.arange(self.batch_size),actions] = q_values
         # Train the model
-        self.model.fit(np.array(states), np.array(y_batch), batch_size=self.batch_size, sample_weight=weights, verbose=self.verbose)
+        self.model.fit(states, np.array(y_batch), batch_size=self.batch_size, sample_weight=weights, verbose=self.verbose)
 
         if self.replay_count % self.freeze_target_frequency == 0:
             self.target_model.set_weights(self.model.get_weights())
+        self.eps = max(self.eps - self.eps_decay, self.eps_min) # update eps
+        self.priority_beta = min(self.priority_beta + self.priority_beta_decay, 1.0)
 
     def _store_transition(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))
@@ -127,7 +130,6 @@ class DQNAgent(object):
         self.last_observation = observation
         self.last_action = self._select_action(observation, self.eps)
         self.cur_step += 1
-        self.eps = max(self.eps - self.eps_decay, self.eps_min) # update eps
         return self.last_action
 
     def step(self, reward, observation):
@@ -137,7 +139,6 @@ class DQNAgent(object):
 
         self.last_observation = observation
         self.last_action = self._select_action(observation, self.eps if not self.eval_mode else self.eps_eval)
-        self.eps = max(self.eps - self.eps_decay, self.eps_min) # update eps
         self.cur_step += 1
         return self.last_action
 
@@ -171,7 +172,6 @@ class CNNDQNAgent(DQNAgent):
         self.last_observation = [self.last_frames[(self.cur_frame + i) % self.n_saved_frames] for i in range(self.n_saved_frames)]
         self.last_action = self._select_action(self.last_observation, self.eps)
         self.cur_step += 1
-        self.eps = max(self.eps - self.eps_decay, self.eps_min) # update eps
         return self.last_action
 
     def step(self, reward, observation):
@@ -184,7 +184,6 @@ class CNNDQNAgent(DQNAgent):
 
         self.last_observation = n_observation
         self.last_action = self._select_action(n_observation, self.eps if not self.eval_mode else self.eps_eval)
-        self.eps = max(self.eps - self.eps_decay, self.eps_min) # update eps
         self.cur_step += 1
         return self.last_action
 
@@ -196,7 +195,6 @@ class CNNDQNAgent(DQNAgent):
         if len(self.memory) < self.min_history_size or (self.cur_step % self.train_frequency != 0):
             return
         self.replay_count += 1
-        print(self.replay_count)
         # Get a batch of state-transitions
         if self.priority_replay:
             mini_batch, idxs, weights = self.memory.sample(self.batch_size)
@@ -223,7 +221,10 @@ class CNNDQNAgent(DQNAgent):
 
         y_batch[np.arange(self.batch_size),actions] = q_values
         # Train the model
-        self.model.fit(np.array(states), np.array(y_batch), batch_size=self.batch_size, sample_weight=weights, verbose=self.verbose)
+        self.model.fit(states, np.array(y_batch), batch_size=self.batch_size, sample_weight=weights, verbose=self.verbose)
 
         if self.replay_count % self.freeze_target_frequency == 0:
             self.target_model.set_weights(self.model.get_weights())
+
+        self.eps = max(self.eps - self.eps_decay, self.eps_min) # update eps
+        self.priority_beta = min(self.priority_beta + self.priority_beta_decay, 1.0)
