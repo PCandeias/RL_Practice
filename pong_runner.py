@@ -4,32 +4,31 @@ import gym
 from collections import deque
 import time
 from keras import backend as K
+from wrappers.atari_preprocessing import AtariPreprocessing
+from wrappers.stackobservation import StackObservation
+
+import matplotlib.pyplot as plt
 
 
-
-def preprocess_obs(obs):
-    return np.mean(obs, axis=2).astype('uint8')[35:195][::2,::2]
-
-n_episodes = 100
+n_episodes = 100000
 render = False
 
-env = gym.make('Pong-v0')
+env = gym.make('Breakout-v0')
+env = AtariPreprocessing(env)
 print(env.observation_space.shape)
-agent = CNNDQNAgent((80,80), env.action_space.n, train_frequency=4)
+env = StackObservation(env, 4)
+print(env.observation_space.shape)
+
+agent = CNNDQNAgent(env.observation_space.shape, env.action_space.n)
 l_rewards = deque(maxlen=100)
 
 for i in range(n_episodes):
     done = False
     obs = env.reset()
-    obs = preprocess_obs(obs)
     action = agent.begin_episode(obs)
     total_reward = 0
     while not done:
-        if i >= 2000 and render:
-            env.render()
-            time.sleep(0.1)
         obs, reward, done, info = env.step(action)
-        obs = preprocess_obs(obs)
         total_reward += reward
         if done:
             agent.end_episode(reward)

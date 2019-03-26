@@ -11,7 +11,7 @@ import time
 
 class DQNAgent(object):
     def __init__(self, 
-                 observation_size, 
+                 observation_shape, 
                  action_size, 
                  gamma=0.99, 
                  eps_min=0.1, 
@@ -34,7 +34,7 @@ class DQNAgent(object):
         else:
             self.memory = ReplayBuffer(max_len=memory_size)
         self.min_history_size = min_history_size
-        self.observation_size = observation_size
+        self.observation_shape = observation_shape
         self.action_size = action_size
         self.gamma = gamma
         self.eps = 1.0 
@@ -62,7 +62,7 @@ class DQNAgent(object):
 
     def _build_model(self, alpha=0.01):
         self.model = Sequential()
-        self.model.add(Dense(units=32, activation='tanh', input_dim=self.observation_size))
+        self.model.add(Dense(units=32, activation='tanh', input_dim=self.observation_shape))
         self.model.add(Dense(units=32, activation='tanh'))
         self.model.add(Dense(units=self.action_size, activation='linear'))
         self.model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=alpha))
@@ -149,82 +149,13 @@ class DQNAgent(object):
 
 class CNNDQNAgent(DQNAgent):
     def __init__(self, *args, **kwargs):
-        self.n_saved_frames = 4
         super(CNNDQNAgent, self).__init__(*args, **kwargs)
-        self.last_frames = [np.zeros(self.observation_size) for i in range(self.n_saved_frames)]
-        self.cur_frame = 0
 
     def _build_model(self, alpha=0.01):
-        input_shape = self.observation_size[:2] + (self.n_saved_frames,)
         self.model = Sequential()
-        self.model.add(Conv2D(32, kernel_size=8, strides=4, input_shape=input_shape, activation='relu'))
+        self.model.add(Conv2D(32, kernel_size=8, strides=4, input_shape=self.observation_shape, activation='relu'))
         self.model.add(Conv2D(64, kernel_size=4, strides=2, activation='relu'))
         self.model.add(Flatten())
         self.model.add(Dense(units=256, activation='tanh'))
         self.model.add(Dense(units=self.action_size, activation='linear'))
         self.model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=alpha))
-
-    def begin_episode(self, observation):
-        """
-        """
-        self.last_frames[self.cur_frame] = observation
-        self.cur_frame = (self.cur_frame + 1) % self.n_saved_frames
-        self.last_observation = [self.last_frames[(self.cur_frame + i) % self.n_saved_frames] for i in range(self.n_saved_frames)]
-        self.last_action = self._select_action(self.last_observation, self.eps)
-        self.cur_step += 1
-        return self.last_action
-
-    def step(self, reward, observation):
-        self.last_frames[self.cur_frame] = observation
-        self.cur_frame = (self.cur_frame + 1) % self.n_saved_frames
-        n_observation = [self.last_frames[(self.cur_frame + i) % self.n_saved_frames] for i in range(self.n_saved_frames)]
-        if not self.eval_mode:
-            self._store_transition(self.last_observation, self.last_action, reward, n_observation, False)
-            self._train_step()
-
-        self.last_observation = n_observation
-        self.last_action = self._select_action(n_observation, self.eps if not self.eval_mode else self.eps_eval)
-        self.cur_step += 1
-        return self.last_action
-
-    def _get_predictions(self, observation):
-        t_observation = np.stack([observation], axis=3).T
-        return self.model.predict(t_observation)
-
-    def _train_step(self):
-        if len(self.memory) < self.min_history_size or (self.cur_step % self.train_frequency != 0):
-            return
-        self.replay_count += 1
-        # Get a batch of state-transitions
-        if self.priority_replay:
-            mini_batch, idxs, weights = self.memory.sample(self.batch_size)
-            weights = weights ** self.priority_beta
-        else:
-            mini_batch, idxs = self.memory.sample(self.batch_size)
-            weights = np.ones(self.batch_size)
-        states, actions, rewards, next_states, done = zip(*mini_batch)
-        states = np.stack(states, axis=3).T
-        next_states = np.stack(next_states, axis=3).T
-        y_batch = self.model.predict(states)
-        target_pred_after = self.target_model.predict(next_states)
-        if self.double_q:
-            model_pred_after = self.model.predict(next_states)
-            q_values = np.array(rewards, copy=False) + self.gamma * np.invert(np.array(done, copy=False)) * target_pred_after[np.arange(self.batch_size),np.argmax(model_pred_after, axis=1)]
-        else:
-            q_values = np.array(rewards, copy=False) + self.gamma * np.invert(np.array(done, copy=False)) * np.max(target_pred_after, axis=1)
-
-        # Update priority values
-        if self.priority_replay:
-            errors = (np.abs(y_batch[np.arange(self.batch_size),actions] - q_values) + 1e-8) ** self.priority_alpha
-            for i in range(self.batch_size):
-                self.memory.update(idxs[i], errors[i])
-
-        y_batch[np.arange(self.batch_size),actions] = q_values
-        # Train the model
-        self.model.fit(states, np.array(y_batch), batch_size=self.batch_size, sample_weight=weights, verbose=self.verbose)
-
-        if self.replay_count % self.freeze_target_frequency == 0:
-            self.target_model.set_weights(self.model.get_weights())
-
-        self.eps = max(self.eps - self.eps_decay, self.eps_min) # update eps
-        self.priority_beta = min(self.priority_beta + self.priority_beta_decay, 1.0)

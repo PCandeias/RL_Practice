@@ -3,11 +3,13 @@ import numpy as np
 import gym
 from collections import deque
 import time
+from wrappers.timelimit import TimeLimit
 
 n_episodes = 20000
 render = False
 
 env = gym.make('CartPole-v1')
+env = TimeLimit(env, 200)
 agent = DQNAgent(4, 2, alpha=0.00025, eps_decay_steps=20000, min_history_size=1000, priority_replay=True)
 l_rewards = deque(maxlen=100)
 
