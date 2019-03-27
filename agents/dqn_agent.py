@@ -13,17 +13,18 @@ class DQNAgent(object):
     def __init__(self, 
                  observation_shape, 
                  action_size, 
-                 gamma=0.99, 
+                 gamma=1.0, 
                  eps_min=0.1, 
                  eps_eval=0.001,
                  eps_decay_steps=1000000,
-                 alpha=0.00025, 
-                 memory_size=100000,
+                 alpha=5e-4,
+                 memory_size=50000,
                  train_frequency=1,
                  batch_size=32, 
-                 freeze_target_frequency=10000,
-                 min_history_size=50000,
+                 freeze_target_frequency=500,
+                 min_history_size=1000,
                  double_q=True,
+                 fixed_q=True,
                  priority_replay=True,
                  verbose=False, 
                  load_filename=None):
@@ -47,6 +48,7 @@ class DQNAgent(object):
         self.replay_count = 0
         self.eval_mode = False
         self.double_q = double_q
+        self.fixed_q = fixed_q
         self.priority_replay = priority_replay
         self.priority_alpha = 0.6
         self.priority_beta = 0.4
@@ -55,7 +57,7 @@ class DQNAgent(object):
         self._build_model(alpha)
         self.train_frequency = train_frequency
         self.cur_step = 0
-        if double_q:
+        if fixed_q:
             self.target_model = utility.copy_model(self.model) # avoid using target Q-network for first iterations
         else:
             self.target_model = self.model
@@ -116,8 +118,9 @@ class DQNAgent(object):
         # Train the model
         self.model.fit(states, np.array(y_batch), batch_size=self.batch_size, sample_weight=weights, verbose=self.verbose)
 
-        if self.replay_count % self.freeze_target_frequency == 0:
+        if self.fixed_q and self.replay_count % self.freeze_target_frequency == 0:
             self.target_model.set_weights(self.model.get_weights())
+
         self.eps = max(self.eps - self.eps_decay, self.eps_min) # update eps
         self.priority_beta = min(self.priority_beta + self.priority_beta_decay, 1.0)
 

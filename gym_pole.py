@@ -10,7 +10,7 @@ render = False
 
 env = gym.make('CartPole-v1')
 env = TimeLimit(env, 200)
-agent = DQNAgent(4, 2, alpha=0.00025, eps_decay_steps=20000, min_history_size=1000, priority_replay=True)
+agent = DQNAgent(4, 2, alpha=0.00025, eps_decay_steps=10000, min_history_size=1000, priority_replay=True, double_q=True)
 l_rewards = deque(maxlen=100)
 
 for i in range(n_episodes):
