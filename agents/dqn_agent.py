@@ -64,8 +64,8 @@ class DQNAgent(object):
 
     def _build_model(self, alpha=0.01):
         self.model = Sequential()
-        self.model.add(Dense(units=32, activation='tanh', input_dim=self.observation_shape))
-        self.model.add(Dense(units=32, activation='tanh'))
+        self.model.add(Dense(units=200, activation='tanh', input_dim=self.observation_shape))
+        self.model.add(Dense(units=200, activation='tanh'))
         self.model.add(Dense(units=self.action_size, activation='linear'))
         self.model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=alpha))
 
@@ -116,7 +116,7 @@ class DQNAgent(object):
 
         y_batch[np.arange(self.batch_size),actions] = q_values
         # Train the model
-        self.model.fit(states, np.array(y_batch), batch_size=self.batch_size, sample_weight=weights, verbose=self.verbose)
+        self.model.fit(states, y_batch, batch_size=self.batch_size, sample_weight=weights, verbose=self.verbose)
 
         if self.fixed_q and self.replay_count % self.freeze_target_frequency == 0:
             self.target_model.set_weights(self.model.get_weights())

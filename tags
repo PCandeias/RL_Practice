@@ -42,7 +42,7 @@ action	gym_runner.py	/^            action = agent.step(reward, obs)$/;"	v
 action	gym_runner.py	/^    action = agent.begin_episode(obs)$/;"	v
 action	pong_runner.py	/^            action = agent.step(reward, obs)$/;"	v
 action	pong_runner.py	/^    action = agent.begin_episode(obs)$/;"	v
-agent	gym_lunar.py	/^agent = DQNAgent(8, 4, alpha=0.00025, eps_decay_steps=100000, min_history_size=10000)$/;"	v
+agent	gym_lunar.py	/^agent = DQNAgent(8, 4, alpha=0.00025, eps_decay_steps=200000, min_history_size=10000, priority_replay=False)$/;"	v
 agent	gym_pole.py	/^agent = DQNAgent(4, 2, alpha=0.00025, eps_decay_steps=10000, min_history_size=1000, priority_replay=True, double_q=True)$/;"	v
 agent	gym_runner.py	/^agent = DQNAgent(2, 3, priority_replay=False)$/;"	v
 agent	pong_runner.py	/^agent = CNNDQNAgent(env.observation_space.shape, env.action_space.n, priority_replay=True, min_history_size=10000, train_frequency=4, gamma=0.99, alpha=0.0001, freeze_target_frequency=1000)$/;"	v
@@ -70,7 +70,7 @@ l_rewards	gym_pole.py	/^l_rewards = deque(maxlen=100)$/;"	v
 l_rewards	gym_runner.py	/^l_rewards = deque(maxlen=100)$/;"	v
 l_rewards	pong_runner.py	/^l_rewards = deque(maxlen=100)$/;"	v
 modules	wrappers/__init__.py	/^modules = glob.glob(dirname(__file__)+"\/*.py")$/;"	v
-n_episodes	gym_lunar.py	/^n_episodes = 2000$/;"	v
+n_episodes	gym_lunar.py	/^n_episodes = 10000$/;"	v
 n_episodes	gym_pole.py	/^n_episodes = 20000$/;"	v
 n_episodes	gym_runner.py	/^n_episodes = 20000$/;"	v
 n_episodes	pong_runner.py	/^n_episodes = 100000$/;"	v

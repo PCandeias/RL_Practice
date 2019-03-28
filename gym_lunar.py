@@ -4,11 +4,11 @@ import gym
 from collections import deque
 import time
 
-n_episodes = 2000
+n_episodes = 10000
 render = False
 
 env = gym.make('LunarLander-v2')
-agent = DQNAgent(8, 4, alpha=0.00025, eps_decay_steps=100000, min_history_size=10000)
+agent = DQNAgent(8, 4, alpha=0.00025, eps_decay_steps=200000, min_history_size=10000, priority_replay=False)
 l_rewards = deque(maxlen=100)
 
 for i in range(n_episodes):
@@ -17,9 +17,6 @@ for i in range(n_episodes):
     action = agent.begin_episode(obs)
     total_reward = 0
     while not done:
-        if i >= 2000 and render:
-            env.render()
-            time.sleep(0.1)
         obs, reward, done, info = env.step(action)
         total_reward += reward
         if done:
