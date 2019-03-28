@@ -13,7 +13,7 @@ class DQNAgent(object):
     def __init__(self, 
                  observation_shape, 
                  action_size, 
-                 gamma=1.0, 
+                 gamma=0.99, 
                  eps_min=0.1, 
                  eps_eval=0.001,
                  eps_decay_steps=1000000,

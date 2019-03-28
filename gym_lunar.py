@@ -8,7 +8,7 @@ n_episodes = 10000
 render = False
 
 env = gym.make('LunarLander-v2')
-agent = DQNAgent(8, 4, alpha=0.00025, eps_decay_steps=200000, min_history_size=10000, priority_replay=False)
+agent = DQNAgent(8, 4, alpha=0.00025, eps_decay_steps=200000, min_history_size=10000, priority_replay=False, gamma=0.99)
 l_rewards = deque(maxlen=100)
 
 for i in range(n_episodes):
@@ -25,7 +25,8 @@ for i in range(n_episodes):
             action = agent.step(reward, obs)
     l_rewards.append(total_reward)
     if ((i+1) % 100) == 0:
-        print('i: {} Avg rew: {} Eps: {}'.format(i, np.mean(np.array(l_rewards)), agent.eps))
+        print('i: {} Avg rew: {} Eps: {} N.Replays: {} STEPS: {}'.format(i, np.mean(np.array(l_rewards)), agent.eps,
+            agent.replay_count, agent.cur_step))
             
 
 
