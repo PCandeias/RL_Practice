@@ -30,33 +30,41 @@ class DQNAgent(object):
                  load_filename=None):
         """
         """
-        if priority_replay:
-            self.memory = PriorityReplayBuffer(max_len=memory_size)
-        else:
-            self.memory = ReplayBuffer(max_len=memory_size)
-        self.min_history_size = min_history_size
         self.observation_shape = observation_shape
         self.action_size = action_size
+        self.cur_step = 0
+        self.replay_count = 0
+
+        self.verbose = verbose
+        self.eval_mode = False
+        self.train_frequency = train_frequency
+        self.batch_size = batch_size
+
         self.gamma = gamma
-        self.eps = 1.0 
+        self.eps = 1.0 # Initialize eps
         self.eps_decay = (1.0 - eps_min) / eps_decay_steps
         self.eps_min = eps_min
         self.eps_eval = eps_eval
-        self.batch_size = batch_size
-        self.verbose = verbose
-        self.freeze_target_frequency = freeze_target_frequency
-        self.replay_count = 0
-        self.eval_mode = False
+
+        # Initialize the Replay buffer
+        self.min_history_size = min_history_size
+        self.priority_replay = priority_replay
+        if priority_replay:
+            self.memory = PriorityReplayBuffer(max_len=memory_size)
+            # Priority replay related parameters
+            self.priority_alpha = 0.6
+            self.priority_beta = 0.4
+            priority_beta_decay_steps = 100000
+            self.priority_beta_decay = (1.0 - self.priority_beta) / priority_beta_decay_steps
+        else:
+            self.memory = ReplayBuffer(max_len=memory_size)
+
         self.double_q = double_q
         self.fixed_q = fixed_q
-        self.priority_replay = priority_replay
-        self.priority_alpha = 0.6
-        self.priority_beta = 0.4
-        priority_beta_decay_steps = 100000
-        self.priority_beta_decay = (1.0 - self.priority_beta) / priority_beta_decay_steps
+        self.freeze_target_frequency = freeze_target_frequency
+
+        # Build the models
         self._build_model(alpha)
-        self.train_frequency = train_frequency
-        self.cur_step = 0
         if fixed_q:
             self.target_model = utility.copy_model(self.model) # avoid using target Q-network for first iterations
         else:
@@ -89,7 +97,10 @@ class DQNAgent(object):
     def _train_step(self):
         if len(self.memory) < self.min_history_size or (self.cur_step % self.train_frequency != 0):
             return
+
         self.replay_count += 1
+        self.eps = max(self.eps - self.eps_decay, self.eps_min) # update eps
+
         # Get a batch of state-transitions
         if self.priority_replay:
             mini_batch, idxs, weights = self.memory.sample(self.batch_size)
@@ -97,32 +108,37 @@ class DQNAgent(object):
         else:
             mini_batch, idxs = self.memory.sample(self.batch_size)
             weights = np.ones(self.batch_size)
+
         states, actions, rewards, next_states, done = zip(*mini_batch)
-        states = np.array(states, copy=False)
-        next_states = np.array(next_states, copy=False)
+        states, actions, rewards, next_states, done = np.array(states, copy=False), np.array(actions, copy=False), \
+                np.array(rewards, copy=False), np.array(next_states, copy=False), np.array(done, copy=False)
+
         y_batch = self.model.predict(states)
         target_pred_after = self.target_model.predict(next_states)
+
         if self.double_q:
             model_pred_after = self.model.predict(next_states)
-            q_values = np.array(rewards, copy=False) + self.gamma * np.invert(np.array(done, copy=False)) * target_pred_after[np.arange(self.batch_size),np.argmax(model_pred_after, axis=1)]
+            q_values = rewards + self.gamma * np.invert(done) * target_pred_after[np.arange(self.batch_size),np.argmax(model_pred_after, axis=1)]
         else:
-            q_values = np.array(rewards, copy=False) + self.gamma * np.invert(np.array(done, copy=False)) * np.max(target_pred_after, axis=1)
+            q_values = rewards + self.gamma * np.invert(done) * np.max(target_pred_after, axis=1)
 
         # Update priority values
         if self.priority_replay:
             errors = (np.abs(y_batch[np.arange(self.batch_size),actions] - q_values) + 1e-8) ** self.priority_alpha
             for i in range(self.batch_size):
                 self.memory.update(idxs[i], errors[i])
+            # Update priority replay parameters
+            self.priority_beta = min(self.priority_beta + self.priority_beta_decay, 1.0)
 
         y_batch[np.arange(self.batch_size),actions] = q_values
+
         # Train the model
         self.model.fit(states, y_batch, batch_size=self.batch_size, sample_weight=weights, verbose=self.verbose)
 
+        # Update target model
         if self.fixed_q and self.replay_count % self.freeze_target_frequency == 0:
             self.target_model.set_weights(self.model.get_weights())
 
-        self.eps = max(self.eps - self.eps_decay, self.eps_min) # update eps
-        self.priority_beta = min(self.priority_beta + self.priority_beta_decay, 1.0)
 
     def _store_transition(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))
@@ -133,6 +149,7 @@ class DQNAgent(object):
         self.last_observation = observation
         self.last_action = self._select_action(observation, self.eps)
         self.cur_step += 1
+
         return self.last_action
 
     def step(self, reward, observation):
@@ -143,6 +160,7 @@ class DQNAgent(object):
         self.last_observation = observation
         self.last_action = self._select_action(observation, self.eps if not self.eval_mode else self.eps_eval)
         self.cur_step += 1
+
         return self.last_action
 
     def end_episode(self, reward):
