@@ -47,16 +47,16 @@ class A2CAgent(Agent):
 
     def _build_critic_model(self, alpha=0.01):
         model = Sequential()
-        model.add(Dense(units=32, activation='tanh', input_dim=self.observation_shape))
-        model.add(Dense(units=32, activation='tanh'))
+        model.add(Dense(units=200, activation='tanh', input_dim=self.observation_shape))
+        model.add(Dense(units=200, activation='tanh'))
         model.add(Dense(units=1, activation='linear'))
         model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=alpha))
         return model
 
     def _build_actor_model(self, alpha=0.01):
         model = Sequential()
-        model.add(Dense(units=32, activation='tanh', input_dim=self.observation_shape))
-        model.add(Dense(units=32, activation='tanh'))
+        model.add(Dense(units=200, activation='tanh', input_dim=self.observation_shape))
+        model.add(Dense(units=200, activation='tanh'))
         model.add(Dense(units=self.action_size, activation='softmax'))
         model.compile(loss='categorical_crossentropy', optimizer=keras.optimizers.Adam(lr=alpha))
         return model
@@ -119,3 +119,17 @@ class A2CAgent(Agent):
         # Train the model
         self.actor.fit(states, a_y_batch, batch_size=self.batch_size, sample_weight=a_weights, verbose=self.verbose)
         self.critic.fit(states, c_y_batch, batch_size=self.batch_size, sample_weight=weights, verbose=self.verbose)
+
+class CNNA2CAgent(A2CAgent):
+    def __init__(self, *args, **kwargs):
+        super(CNNA2CAgent, self).__init__(*args, **kwargs)
+
+    def _build_critic_model(self, alpha=0.01):
+        model = Sequential()
+        model.add(Conv2D(32, kernel_size=8, strides=4, input_shape=self.observation_shape, activation='relu'))
+        model.add(Conv2D(64, kernel_size=4, strides=2, activation='relu'))
+        model.add(Flatten())
+        model.add(Dense(units=256, activation='tanh'))
+        model.add(Dense(units=self.action_size, activation='linear'))
+        model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=alpha))
+        return model
