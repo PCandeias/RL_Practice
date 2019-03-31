@@ -7,6 +7,7 @@
 A2CAgent	agents/a2c_agent.py	/^class A2CAgent(Agent):$/;"	c
 Agent	agents/agent.py	/^class Agent(object):$/;"	c
 AtariPreprocessing	wrappers/atari_preprocessing.py	/^class AtariPreprocessing(gym.Wrapper):$/;"	c
+CNNA2CAgent	agents/a2c_agent.py	/^class CNNA2CAgent(A2CAgent):$/;"	c
 CNNDQNAgent	agents/dqn_agent.py	/^class CNNDQNAgent(DQNAgent):$/;"	c
 DQNAgent	agents/dqn_agent.py	/^class DQNAgent(object):$/;"	c
 PriorityReplayBuffer	utility/random_buffer.py	/^class PriorityReplayBuffer(ReplayBuffer):$/;"	c
@@ -16,6 +17,7 @@ TimeLimit	wrappers/timelimit.py	/^class TimeLimit(gym.Wrapper):$/;"	c
 __all__	wrappers/__init__.py	/^__all__ = [ basename(f)[:-3] for f in modules if isfile(f) and not f.endswith('__init__.py')]$/;"	v
 __getitem__	utility/random_buffer.py	/^    def __getitem__(self, index):$/;"	m	class:ReplayBuffer	file:
 __init__	agents/a2c_agent.py	/^    def __init__(self, $/;"	m	class:A2CAgent
+__init__	agents/a2c_agent.py	/^    def __init__(self, *args, **kwargs):$/;"	m	class:CNNA2CAgent
 __init__	agents/agent.py	/^    def __init__(self, $/;"	m	class:Agent
 __init__	agents/dqn_agent.py	/^    def __init__(self, $/;"	m	class:DQNAgent
 __init__	agents/dqn_agent.py	/^    def __init__(self, *args, **kwargs):$/;"	m	class:CNNDQNAgent
@@ -28,6 +30,7 @@ __len__	utility/random_buffer.py	/^    def __len__(self):$/;"	m	class:ReplayBuff
 __preprocessing	wrappers/atari_preprocessing.py	/^    def __preprocessing(self, observation):$/;"	m	class:AtariPreprocessing	file:
 _build_actor_model	agents/a2c_agent.py	/^    def _build_actor_model(self, alpha=0.01):$/;"	m	class:A2CAgent
 _build_critic_model	agents/a2c_agent.py	/^    def _build_critic_model(self, alpha=0.01):$/;"	m	class:A2CAgent
+_build_critic_model	agents/a2c_agent.py	/^    def _build_critic_model(self, alpha=0.01):$/;"	m	class:CNNA2CAgent
 _build_model	agents/dqn_agent.py	/^    def _build_model(self, alpha=0.01):$/;"	m	class:CNNDQNAgent
 _build_model	agents/dqn_agent.py	/^    def _build_model(self, alpha=0.01):$/;"	m	class:DQNAgent
 _get_predictions	agents/a2c_agent.py	/^    def _get_predictions(self, observation):$/;"	m	class:A2CAgent
@@ -61,7 +64,7 @@ agent	gym_lunar.py	/^agent = DQNAgent(8, 4, alpha=0.00025, memory_size=10000, mi
 agent	gym_pole.py	/^agent = A2CAgent(4, 2, memory_size=10000, min_history_size=100, c_alpha=0.0025, a_alpha=0.0005, priority_replay=True)$/;"	v
 agent	gym_pole.py	/^agent = DQNAgent(4, 2, memory_size=10000, eps_decay_steps=10000, min_history_size=100, alpha=.00025)$/;"	v
 agent	gym_runner.py	/^agent = DQNAgent(2, 3, priority_replay=False)$/;"	v
-agent	pong_runner.py	/^agent = CNNDQNAgent(env.observation_space.shape, env.action_space.n, priority_replay=True, eps_decay_steps=1000000,$/;"	v
+agent	pong_runner.py	/^agent = CNNDQNAgent(env.observation_space.shape, env.action_space.n, priority_replay=False, eps_decay_steps=100000,$/;"	v
 agent	test.py	/^agent = DQNAgent(1,9, decay_steps=20000)$/;"	v
 append	utility/random_buffer.py	/^    def append(self, element):$/;"	m	class:PriorityReplayBuffer
 append	utility/random_buffer.py	/^    def append(self, element):$/;"	m	class:ReplayBuffer

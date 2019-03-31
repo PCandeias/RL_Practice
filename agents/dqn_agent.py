@@ -138,8 +138,7 @@ class DQNAgent(object):
 
         # Update target model
         if self.fixed_q and self.replay_count % self.freeze_target_frequency == 0:
-            self.target_model.set_weights(self.model.get_weights())
-
+            self.target_model.set_weights(self.model.get_weights().copy())
 
     def _store_transition(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))
@@ -178,6 +177,7 @@ class CNNDQNAgent(DQNAgent):
         model.add(Conv2D(32, kernel_size=8, strides=4, input_shape=self.observation_shape, activation='relu'))
         model.add(Conv2D(64, kernel_size=4, strides=2, activation='relu'))
         model.add(Flatten())
+        model.add(Dense(units=256, activation='tanh'))
         model.add(Dense(units=256, activation='tanh'))
         model.add(Dense(units=self.action_size, activation='linear'))
         model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=alpha))

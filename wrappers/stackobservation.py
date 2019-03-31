@@ -20,7 +20,7 @@ class StackObservation(gym.Wrapper):
         obs, reward, done, info = self.env.step(action)
 
         # Store new frame
-        self.memory[self.cur_frame] = obs
+        self.memory[self.cur_frame] = obs.copy()
 
         # Return the stack of frames
         self.cur_frame = (self.cur_frame + 1) % self.stack_size
