@@ -174,8 +174,8 @@ class CNNDQNAgent(DQNAgent):
         super(CNNDQNAgent, self).__init__(*args, **kwargs)
 
     def _build_model(self, alpha=0.01):
-        self.model = Sequential()
-        self.model.add(Conv2D(32, kernel_size=8, strides=4, input_shape=self.observation_shape, activation='relu'))
+        model = Sequential()
+        model.add(Conv2D(32, kernel_size=8, strides=4, input_shape=self.observation_shape, activation='relu'))
         model.add(Conv2D(64, kernel_size=4, strides=2, activation='relu'))
         model.add(Flatten())
         model.add(Dense(units=256, activation='tanh'))
