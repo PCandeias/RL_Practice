@@ -16,7 +16,7 @@ class DQNAgent(object):
                  gamma=0.99, 
                  eps_min=0.1, 
                  eps_eval=0.001,
-                 eps_decay_steps=1000000,
+                 eps_decay_steps=100000,
                  alpha=5e-4,
                  memory_size=50000,
                  train_frequency=1,
@@ -54,7 +54,7 @@ class DQNAgent(object):
             # Priority replay related parameters
             self.priority_alpha = 0.6
             self.priority_beta = 0.4
-            priority_beta_decay_steps = 100000
+            priority_beta_decay_steps = eps_decay_steps
             self.priority_beta_decay = (1.0 - self.priority_beta) / priority_beta_decay_steps
         else:
             self.memory = ReplayBuffer(max_len=memory_size)
@@ -64,18 +64,19 @@ class DQNAgent(object):
         self.freeze_target_frequency = freeze_target_frequency
 
         # Build the models
-        self._build_model(alpha)
+        self.model = self._build_model(alpha)
         if fixed_q:
             self.target_model = utility.copy_model(self.model) # avoid using target Q-network for first iterations
         else:
             self.target_model = self.model
 
     def _build_model(self, alpha=0.01):
-        self.model = Sequential()
-        self.model.add(Dense(units=200, activation='tanh', input_dim=self.observation_shape))
-        self.model.add(Dense(units=200, activation='tanh'))
-        self.model.add(Dense(units=self.action_size, activation='linear'))
-        self.model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=alpha))
+        model = Sequential()
+        model.add(Dense(units=200, activation='tanh', input_dim=self.observation_shape))
+        model.add(Dense(units=200, activation='tanh'))
+        model.add(Dense(units=self.action_size, activation='linear'))
+        model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=alpha))
+        return model
 
     def _load_model(self, load_filename):
         self.model = load_model(utility.models_directory + load_filename + "_dqn.h5")
@@ -175,8 +176,9 @@ class CNNDQNAgent(DQNAgent):
     def _build_model(self, alpha=0.01):
         self.model = Sequential()
         self.model.add(Conv2D(32, kernel_size=8, strides=4, input_shape=self.observation_shape, activation='relu'))
-        self.model.add(Conv2D(64, kernel_size=4, strides=2, activation='relu'))
-        self.model.add(Flatten())
-        self.model.add(Dense(units=256, activation='tanh'))
-        self.model.add(Dense(units=self.action_size, activation='linear'))
-        self.model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=alpha))
+        model.add(Conv2D(64, kernel_size=4, strides=2, activation='relu'))
+        model.add(Flatten())
+        model.add(Dense(units=256, activation='tanh'))
+        model.add(Dense(units=self.action_size, activation='linear'))
+        model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=alpha))
+        return model

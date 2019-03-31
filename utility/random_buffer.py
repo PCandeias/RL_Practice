@@ -23,6 +23,7 @@ class ReplayBuffer(object):
             self.memory.append(element)
         else:
             self.memory[self.cur_idx] = element
+
         self.cur_idx = (self.cur_idx + 1) % self.max_len
 
 class PriorityReplayBuffer(ReplayBuffer):
@@ -54,9 +55,11 @@ class PriorityReplayBuffer(ReplayBuffer):
     def _retrieve(self, s_idx, val):
         left = s_idx * 2 + 1
         right = left + 1
-        if left >= len(self.sumtree):
+
+        if left >= len(self.sumtree): # Reached leaf?
             idx = s_idx - self.max_len + 1
             return self.memory[idx], idx, self.sumtree[s_idx]
+
         if self.sumtree[left] >= val:
             return self._retrieve(left, val)
         else:
@@ -64,6 +67,7 @@ class PriorityReplayBuffer(ReplayBuffer):
 
     def update(self, idx, p):
         assert p > 0
+
         s_idx = self.max_len + idx - 1
         dif = (p - self.sumtree[s_idx])
         self._propagate(s_idx, dif)
@@ -75,6 +79,7 @@ class PriorityReplayBuffer(ReplayBuffer):
         """
         if s_idx < 0:
             return
+
         self.sumtree[s_idx] += dif 
         parent = (s_idx-1) // 2
         self._propagate(parent, dif)
