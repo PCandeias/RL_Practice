@@ -72,9 +72,9 @@ class DQNAgent(object):
 
     def _build_model(self, alpha=0.01):
         model = Sequential()
-        model.add(Dense(units=200, activation='tanh', input_dim=self.observation_shape))
-        model.add(Dense(units=200, activation='tanh'))
-        model.add(Dense(units=self.action_size, activation='linear'))
+        model.add(Dense(units=200, activation='relu', input_dim=self.observation_shape))
+        model.add(Dense(units=200, activation='relu'))
+        model.add(Dense(units=self.action_size))
         model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=alpha))
         return model
 
@@ -176,9 +176,9 @@ class CNNDQNAgent(DQNAgent):
         model = Sequential()
         model.add(Conv2D(32, kernel_size=8, strides=4, input_shape=self.observation_shape, activation='relu'))
         model.add(Conv2D(64, kernel_size=4, strides=2, activation='relu'))
+        model.add(Conv2D(64, kernel_size=3, strides=1, activation='relu'))
         model.add(Flatten())
-        model.add(Dense(units=256, activation='tanh'))
-        model.add(Dense(units=256, activation='tanh'))
-        model.add(Dense(units=self.action_size, activation='linear'))
+        model.add(Dense(units=256, activation='relu'))
+        model.add(Dense(units=self.action_size))
         model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=alpha))
         return model

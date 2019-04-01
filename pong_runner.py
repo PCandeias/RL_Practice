@@ -13,14 +13,13 @@ import matplotlib.pyplot as plt
 n_episodes = 100000
 render = False
 
-env = gym.make('Pong-v0')
+env = gym.make('PongNoFrameskip-v4')
 env = AtariPreprocessing(env)
 print(env.observation_space.shape)
 env = StackObservation(env, 4)
 print(env.observation_space.shape)
 
-agent = CNNDQNAgent(env.observation_space.shape, env.action_space.n, priority_replay=False, eps_decay_steps=100000,
-        min_history_size=10000, freeze_target_frequency=500, train_frequency=4, gamma=0.99, alpha=0.0001)
+agent = CNNDQNAgent(env.observation_space.shape, env.action_space.n, eps_decay_steps=100000,  memory_size=100000, min_history_size=10000, freeze_target_frequency=500, train_frequency=4, gamma=0.99, alpha=0.0001)
 
 l_rewards = deque(maxlen=100)
 
