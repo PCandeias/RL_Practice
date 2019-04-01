@@ -19,7 +19,8 @@ print(env.observation_space.shape)
 env = StackObservation(env, 4)
 print(env.observation_space.shape)
 
-agent = CNNDQNAgent(env.observation_space.shape, env.action_space.n, eps_decay_steps=100000,  memory_size=100000, min_history_size=10000, freeze_target_frequency=500, train_frequency=4, gamma=0.99, alpha=0.0001)
+agent = CNNDQNAgent(env.observation_space.shape, env.action_space.n, eps_decay_steps=100000,  memory_size=100000,
+        min_history_size=10000, freeze_target_frequency=500, train_frequency=4, gamma=0.99, alpha=0.0001, double_q=False, fixed_q=False, priority_replay=False)
 
 l_rewards = deque(maxlen=100)
 

@@ -8,8 +8,9 @@ from keras.models import load_model
 from utility.random_buffer import ReplayBuffer, PriorityReplayBuffer
 import utility.utility as utility
 import time
+from agents.agent import Agent
 
-class DQNAgent(object):
+class DQNAgent(Agent):
     def __init__(self, 
                  observation_shape, 
                  action_size, 
@@ -30,6 +31,8 @@ class DQNAgent(object):
                  load_filename=None):
         """
         """
+        super(DQNAgent, self).__init__(observation_shape, action_size, gamma=gamma, train_frequency=train_frequency,
+                memory_size=memory_size, min_history_size=min_history_size, batch_size=batch_size, verbose=verbose)
         self.observation_shape = observation_shape
         self.action_size = action_size
         self.cur_step = 0
@@ -140,33 +143,6 @@ class DQNAgent(object):
         if self.fixed_q and self.replay_count % self.freeze_target_frequency == 0:
             self.target_model.set_weights(self.model.get_weights().copy())
 
-    def _store_transition(self, state, action, reward, next_state, done):
-        self.memory.append((state, action, reward, next_state, done))
-
-    def begin_episode(self, observation):
-        """
-        """
-        self.last_observation = observation
-        self.last_action = self._select_action(observation, self.eps)
-        self.cur_step += 1
-
-        return self.last_action
-
-    def step(self, reward, observation):
-        if not self.eval_mode:
-            self._store_transition(self.last_observation, self.last_action, reward, observation, False)
-            self._train_step()
-
-        self.last_observation = observation
-        self.last_action = self._select_action(observation, self.eps if not self.eval_mode else self.eps_eval)
-        self.cur_step += 1
-
-        return self.last_action
-
-    def end_episode(self, reward):
-        if not self.eval_mode:
-            self._store_transition(self.last_observation, self.last_action, reward, self.last_observation, True)
-            self._train_step()
 
 class CNNDQNAgent(DQNAgent):
     def __init__(self, *args, **kwargs):
