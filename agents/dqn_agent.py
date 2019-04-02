@@ -10,6 +10,7 @@ from utility.random_buffer import ReplayBuffer, PriorityReplayBuffer
 import utility.utility as utility
 import time
 from agents.agent import Agent
+from keras import backend as K
 
 class DQNAgent(Agent):
     def __init__(self, 
@@ -83,7 +84,7 @@ class DQNAgent(Agent):
         y_pred = Dense(units=self.action_size)(f)
 
         def weighted_loss(y_true, y_pred, weights):
-            return mse(y_true, y_pred) * weights[:,0]
+            return K.sum(mse(y_true, y_pred) * weights[:,0])
 
         train_model = Model(inputs=[x, y_true, weights], outputs=y_pred)
         model = Model(inputs=x, outputs=y_pred)
@@ -176,7 +177,7 @@ class CNNDQNAgent(DQNAgent):
         y_pred = Dense(units=self.action_size)(f)
 
         def weighted_loss(y_true, y_pred, weights):
-            return mse(y_true, y_pred) * weights[:,0]
+            return K.sum(mse(y_true, y_pred) * weights[:,0])
 
         train_model = Model(inputs=[x, y_true, weights], outputs=y_pred)
         model = Model(inputs=x, outputs=y_pred)
