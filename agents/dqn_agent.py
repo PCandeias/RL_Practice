@@ -83,13 +83,14 @@ class DQNAgent(Agent):
         y_pred = Dense(units=self.action_size)(f)
 
         def weighted_loss(y_true, y_pred, weights):
-            return mse(y_true, y_pred) * weights
+            return mse(y_true, y_pred) * weights[:,0]
 
-        train_model = Model( inputs=[x, y_true, weights], outputs=y_pred, name='train_only' )
-        model = Model( inputs=x, outputs=y_pred, name='train_only' )
+        train_model = Model(inputs=[x, y_true, weights], outputs=y_pred)
+        model = Model(inputs=x, outputs=y_pred)
 
         train_model.add_loss(weighted_loss(y_true, y_pred, weights))
-        train_model.compile(loss=None, optimizer=keras.optimizers.Adam(lr=alpha))
+        # train_model.compile(loss=None, optimizer=keras.optimizers.Adam(lr=alpha))
+        train_model.compile(loss=None, optimizer=keras.optimizers.Adam(lr=alpha), metrics=['mse'])
         # model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=alpha))
 
         return model, train_model
@@ -152,7 +153,7 @@ class DQNAgent(Agent):
 
         # Train the model
         # self.model.fit(states, y_batch, batch_size=self.batch_size, sample_weight=weights, verbose=self.verbose)
-        self.train_model.fit([states, y_batch, weights], batch_size=self.batch_size, verbose=self.verbose)
+        a = self.train_model.fit([states, y_batch, weights], batch_size=self.batch_size, verbose=self.verbose)
 
         # Update target model
         if self.fixed_q and self.replay_count % self.freeze_target_frequency == 0:
@@ -168,15 +169,19 @@ class CNNDQNAgent(DQNAgent):
         y_true = Input(shape=(self.action_size,))
         weights = Input(shape=(1,))
         f = Conv2D(32, kernel_size=8, strides=4, activation='relu')(x)
-        f = Conv2D(32, kernel_size=8, strides=4, activation='relu')(x)
-        f = Dense(units=512, activation='relu')(f)
+        f = Conv2D(64, kernel_size=4, strides=2, activation='relu')(f)
+        f = Conv2D(64, kernel_size=3, strides=1, activation='relu')(f)
+        f = Flatten()(f)
+        f = Dense(units=256, activation='relu')(f)
         y_pred = Dense(units=self.action_size)(f)
-        model = Sequential()
-        model.add(Conv2D(32, kernel_size=8, strides=4, input_shape=self.observation_shape)
-        model.add(Conv2D(64, kernel_size=4, strides=2, activation='relu'))
-        model.add(Conv2D(64, kernel_size=3, strides=1, activation='relu'))
-        model.add(Flatten())
-        model.add(Dense(units=256, activation='relu'))
-        model.add(Dense(units=self.action_size))
-        model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=alpha))
-        return model
+
+        def weighted_loss(y_true, y_pred, weights):
+            return mse(y_true, y_pred) * weights[:,0]
+
+        train_model = Model(inputs=[x, y_true, weights], outputs=y_pred)
+        model = Model(inputs=x, outputs=y_pred)
+
+        train_model.add_loss(weighted_loss(y_true, y_pred, weights))
+        train_model.compile(loss=None, optimizer=keras.optimizers.Adam(lr=alpha), metrics=['mse'])
+
+        return model, train_model

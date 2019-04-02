@@ -11,7 +11,7 @@ render = False
 
 env = gym.make('CartPole-v1')
 env = TimeLimit(env, 200)
-agent = DQNAgent(4, 2, memory_size=10000, eps_decay_steps=10000, min_history_size=100, alpha=.00025)
+agent = DQNAgent((4,), 2, memory_size=10000, eps_decay_steps=10000, min_history_size=100, alpha=.00025)
 # agent = A2CAgent(4, 2, memory_size=10000, min_history_size=100, c_alpha=0.0025, a_alpha=0.0005, priority_replay=True)
 l_rewards = deque(maxlen=100)
 

@@ -8,7 +8,7 @@ n_episodes = 20000
 render = False
 
 env = gym.make('MountainCar-v0')
-agent = DQNAgent(2, 3, priority_replay=False)
+agent = DQNAgent((2,), 3, priority_replay=False)
 l_rewards = deque(maxlen=100)
 
 for i in range(n_episodes):
