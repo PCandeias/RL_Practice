@@ -58,7 +58,6 @@ action	gym_runner.py	/^            action = agent.step(reward, obs)$/;"	v
 action	gym_runner.py	/^    action = agent.begin_episode(obs)$/;"	v
 action	pong_runner.py	/^            action = agent.step(reward, obs)$/;"	v
 action	pong_runner.py	/^    action = agent.begin_episode(obs)$/;"	v
-agent	gym_lunar.py	/^agent = A2CAgent(8, 4, c_alpha=0.0025, a_alpha=0.0005, memory_size=10000, min_history_size=1000, gamma=0.99)$/;"	v
 agent	gym_lunar.py	/^agent = DQNAgent(8, 4, alpha=0.00025, memory_size=10000, min_history_size=1000, gamma=0.99)$/;"	v
 agent	gym_pole.py	/^agent = DQNAgent(4, 2, memory_size=10000, eps_decay_steps=10000, min_history_size=100, alpha=.00025)$/;"	v
 agent	gym_runner.py	/^agent = DQNAgent(2, 3, priority_replay=False)$/;"	v
@@ -116,3 +115,4 @@ total_weight	utility/random_buffer.py	/^    def total_weight(self):$/;"	m	class:
 update	utility/random_buffer.py	/^    def update(self, idx, p):$/;"	m	class:PriorityReplayBuffer
 val	test.py	/^            val = np.random.randint(0,9)$/;"	v
 val	test.py	/^    val = np.random.randint(0,9)$/;"	v
+weighted_loss	agents/dqn_agent.py	/^        def weighted_loss(y_true, y_pred, weights):$/;"	f	function:DQNAgent._build_model

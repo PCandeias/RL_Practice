@@ -3,8 +3,9 @@ from collections import deque
 import random
 import keras
 from keras.models import Sequential
-from keras.layers import Dense, Conv2D, Flatten
-from keras.models import load_model
+from keras.layers import Dense, Conv2D, Flatten, Input
+from keras.models import load_model, Model
+from keras.losses import mse
 from utility.random_buffer import ReplayBuffer, PriorityReplayBuffer
 import utility.utility as utility
 import time
@@ -67,19 +68,31 @@ class DQNAgent(Agent):
         self.freeze_target_frequency = freeze_target_frequency
 
         # Build the models
-        self.model = self._build_model(alpha)
+        self.model, self.train_model = self._build_model(alpha)
         if fixed_q:
             self.target_model = utility.copy_model(self.model) # avoid using target Q-network for first iterations
         else:
             self.target_model = self.model
 
     def _build_model(self, alpha=0.01):
-        model = Sequential()
-        model.add(Dense(units=200, activation='relu', input_dim=self.observation_shape))
-        model.add(Dense(units=200, activation='relu'))
-        model.add(Dense(units=self.action_size))
-        model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=alpha))
-        return model
+        print(self.observation_shape)
+        x = Input(shape=(self.observation_shape,))
+        y_true = Input(shape=(self.action_size,))
+        weights = Input(shape=(1,))
+        f = Dense(units=200, activation='relu')(x)
+        f = Dense(units=200, activation='relu')(f)
+        y_pred = Dense(units=self.action_size)(f)
+
+        def weighted_loss(y_true, y_pred, weights):
+            return weights * mse(y_true, y_pred)
+
+        train_model = Model( inputs=[x, y_true, weights], outputs=y_pred, name='train_only' )
+        model = Model( inputs=x, outputs=y_pred, name='train_only' )
+
+        train_model.add_loss(weighted_loss(y_true, y_pred, weights))
+        train_model.compile(loss=None, optimizer=keras.optimizers.Adam(lr=alpha))
+
+        return model, train_model
 
     def _load_model(self, load_filename):
         self.model = load_model(utility.models_directory + load_filename + "_dqn.h5")
@@ -137,7 +150,8 @@ class DQNAgent(Agent):
         y_batch[np.arange(self.batch_size),actions] = q_values
 
         # Train the model
-        self.model.fit(states, y_batch, batch_size=self.batch_size, sample_weight=weights, verbose=self.verbose)
+        # self.model.fit(states, y_batch, batch_size=self.batch_size, sample_weight=weights, verbose=self.verbose)
+        self.train_model.fit([states, y_batch, weights], verbose=self.verbose)
 
         # Update target model
         if self.fixed_q and self.replay_count % self.freeze_target_frequency == 0:
