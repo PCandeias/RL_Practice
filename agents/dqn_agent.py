@@ -63,7 +63,7 @@ class DQNAgent(Agent):
         else:
             self.memory = ReplayBuffer(max_len=memory_size)
 
-        self.double_q = double_q
+        self.double_q = double_q,
         self.fixed_q = fixed_q
         self.freeze_target_frequency = freeze_target_frequency
 
@@ -75,8 +75,7 @@ class DQNAgent(Agent):
             self.target_model = self.model
 
     def _build_model(self, alpha=0.01):
-        print(self.observation_shape)
-        x = Input(shape=(self.observation_shape,))
+        x = Input(shape=self.observation_shape)
         y_true = Input(shape=(self.action_size,))
         weights = Input(shape=(1,))
         f = Dense(units=200, activation='relu')(x)
@@ -84,15 +83,17 @@ class DQNAgent(Agent):
         y_pred = Dense(units=self.action_size)(f)
 
         def weighted_loss(y_true, y_pred, weights):
-            return weights * mse(y_true, y_pred)
+            return mse(y_true, y_pred) * weights
 
         train_model = Model( inputs=[x, y_true, weights], outputs=y_pred, name='train_only' )
         model = Model( inputs=x, outputs=y_pred, name='train_only' )
 
         train_model.add_loss(weighted_loss(y_true, y_pred, weights))
         train_model.compile(loss=None, optimizer=keras.optimizers.Adam(lr=alpha))
+        # model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=alpha))
 
         return model, train_model
+        # return model, model
 
     def _load_model(self, load_filename):
         self.model = load_model(utility.models_directory + load_filename + "_dqn.h5")
@@ -151,7 +152,7 @@ class DQNAgent(Agent):
 
         # Train the model
         # self.model.fit(states, y_batch, batch_size=self.batch_size, sample_weight=weights, verbose=self.verbose)
-        self.train_model.fit([states, y_batch, weights], verbose=self.verbose)
+        self.train_model.fit([states, y_batch, weights], batch_size=self.batch_size, verbose=self.verbose)
 
         # Update target model
         if self.fixed_q and self.replay_count % self.freeze_target_frequency == 0:
@@ -163,8 +164,15 @@ class CNNDQNAgent(DQNAgent):
         super(CNNDQNAgent, self).__init__(*args, **kwargs)
 
     def _build_model(self, alpha=0.01):
+        x = Input(shape=self.observation_shape)
+        y_true = Input(shape=(self.action_size,))
+        weights = Input(shape=(1,))
+        f = Conv2D(32, kernel_size=8, strides=4, activation='relu')(x)
+        f = Conv2D(32, kernel_size=8, strides=4, activation='relu')(x)
+        f = Dense(units=512, activation='relu')(f)
+        y_pred = Dense(units=self.action_size)(f)
         model = Sequential()
-        model.add(Conv2D(32, kernel_size=8, strides=4, input_shape=self.observation_shape, activation='relu'))
+        model.add(Conv2D(32, kernel_size=8, strides=4, input_shape=self.observation_shape)
         model.add(Conv2D(64, kernel_size=4, strides=2, activation='relu'))
         model.add(Conv2D(64, kernel_size=3, strides=1, activation='relu'))
         model.add(Flatten())
