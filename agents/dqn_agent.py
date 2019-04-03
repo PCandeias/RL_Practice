@@ -75,7 +75,7 @@ class DQNAgent(Agent):
 
     def _build_model(self, alpha=0.01):
         model = Sequential()
-        model.add(Dense(units=200, activation='relu', input_dim=self.observation_shape))
+        model.add(Dense(units=200, activation='relu', input_shape=self.observation_shape))
         model.add(Dense(units=200, activation='relu'))
         model.add(Dense(units=self.action_size))
         model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=alpha))
