@@ -2,6 +2,7 @@ import gym
 import numpy as np
 from gym import spaces
 
+
 class StackObservation(gym.Wrapper):
     def __init__(self, env, stack_size):
         super(StackObservation, self).__init__(env)
@@ -32,14 +33,18 @@ class StackObservation(gym.Wrapper):
     def reset(self):
         obs = self.env.reset()
 
-        # Store new frame
-        self.memory[self.cur_frame] = obs
+        # Reset memory
+        self.memory = [np.zeros(self.env.observation_space.shape) for i in range(self.stack_size)]
+        self.cur_frame = 0
 
-        # Return the stack of frames
+        # Store new frame
+        self.memory[self.cur_frame] = obs.copy()
+
         self.cur_frame = (self.cur_frame + 1) % self.stack_size
         stacked_obs = [self.memory[(self.cur_frame + i) % self.stack_size] for i in range(self.stack_size)]
         stacked_obs = np.moveaxis(np.array(stacked_obs, copy=False), 0, 2)
 
-        # Reset memory
-        self.memory = [np.zeros(self.env.observation_space.shape) for i in range(self.stack_size)]
+
+        # Return the stack of frames
+
         return stacked_obs

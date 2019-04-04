@@ -58,7 +58,7 @@ action	gym_runner.py	/^            action = agent.step(reward, obs)$/;"	v
 action	gym_runner.py	/^    action = agent.begin_episode(obs)$/;"	v
 action	pong_runner.py	/^            action = agent.step(reward, obs)$/;"	v
 action	pong_runner.py	/^    action = agent.begin_episode(obs)$/;"	v
-agent	gym_lunar.py	/^agent = DQNAgent((8,), 4, alpha=0.00025, memory_size=10000, min_history_size=1000, gamma=0.99, priority_replay=False)$/;"	v
+agent	gym_lunar.py	/^agent = DQNAgent((8,), 4, alpha=0.00025, memory_size=10000, min_history_size=1000, gamma=0.99, priority_replay=True)$/;"	v
 agent	gym_pole.py	/^agent = DQNAgent((4,), 2, memory_size=10000, eps_decay_steps=10000, min_history_size=100, alpha=.00025)$/;"	v
 agent	gym_runner.py	/^agent = DQNAgent((2,), 3, priority_replay=False)$/;"	v
 agent	pong_runner.py	/^agent = CNNDQNAgent(env.observation_space.shape, env.action_space.n, eps_decay_steps=100000,  memory_size=100000,$/;"	v
