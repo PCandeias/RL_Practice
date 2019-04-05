@@ -15,6 +15,7 @@ class AtariPreprocessing(gym.Wrapper):
         observation[observation == 144] = 0
         observation[observation == 109] = 0
         observation[observation != 0] = 1
+
         return observation.astype(np.float)
 
     def step(self, action):
