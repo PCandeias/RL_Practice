@@ -46,5 +46,4 @@ class StackObservation(gym.Wrapper):
 
 
         # Return the stack of frames
-
         return stacked_obs
