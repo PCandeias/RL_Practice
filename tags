@@ -10,6 +10,7 @@ AtariPreprocessing	wrappers/atari_preprocessing.py	/^class AtariPreprocessing(gy
 CNNA2CAgent	agents/a2c_agent.py	/^class CNNA2CAgent(A2CAgent):$/;"	c
 CNNDQNAgent	agents/dqn_agent.py	/^class CNNDQNAgent(DQNAgent):$/;"	c
 DQNAgent	agents/dqn_agent.py	/^class DQNAgent(Agent):$/;"	c
+Flatten	wrappers/flatten.py	/^class Flatten(gym.Wrapper):$/;"	c
 PriorityReplayBuffer	utility/random_buffer.py	/^class PriorityReplayBuffer(ReplayBuffer):$/;"	c
 ReplayBuffer	utility/random_buffer.py	/^class ReplayBuffer(object):$/;"	c
 StackObservation	wrappers/stackobservation.py	/^class StackObservation(gym.Wrapper):$/;"	c
@@ -24,6 +25,7 @@ __init__	agents/dqn_agent.py	/^    def __init__(self, *args, **kwargs):$/;"	m	cl
 __init__	utility/random_buffer.py	/^    def __init__(self, max_len):$/;"	m	class:PriorityReplayBuffer
 __init__	utility/random_buffer.py	/^    def __init__(self, max_len):$/;"	m	class:ReplayBuffer
 __init__	wrappers/atari_preprocessing.py	/^    def __init__(self, env):$/;"	m	class:AtariPreprocessing
+__init__	wrappers/flatten.py	/^    def __init__(self, env):$/;"	m	class:Flatten
 __init__	wrappers/stackobservation.py	/^    def __init__(self, env, stack_size):$/;"	m	class:StackObservation
 __init__	wrappers/timelimit.py	/^    def __init__(self, env, max_steps):$/;"	m	class:TimeLimit
 __len__	utility/random_buffer.py	/^    def __len__(self):$/;"	m	class:ReplayBuffer	file:
@@ -58,9 +60,8 @@ action	gym_runner.py	/^            action = agent.step(reward, obs)$/;"	v
 action	gym_runner.py	/^    action = agent.begin_episode(obs)$/;"	v
 action	pong_runner.py	/^            action = agent.step(reward, obs)$/;"	v
 action	pong_runner.py	/^    action = agent.begin_episode(obs)$/;"	v
-agent	gym_lunar.py	/^agent = A2CAgent(8, 4, c_alpha=0.0025, a_alpha=0.0005, memory_size=10000, min_history_size=1000, gamma=0.99)$/;"	v
-agent	gym_lunar.py	/^agent = DQNAgent(8, 4, alpha=0.00025, memory_size=10000, min_history_size=1000, gamma=0.99)$/;"	v
-agent	gym_pole.py	/^agent = DQNAgent(4, 2, memory_size=10000, eps_decay_steps=10000, min_history_size=100, alpha=.00025)$/;"	v
+agent	gym_lunar.py	/^agent = DQNAgent(env.observation_space.shape, 4, alpha=0.00025, memory_size=10000, min_history_size=1000, gamma=0.99)$/;"	v
+agent	gym_pole.py	/^agent = DQNAgent(env.observation_space.shape, 2, memory_size=10000, eps_decay_steps=10000, min_history_size=100, alpha=.00025)$/;"	v
 agent	gym_runner.py	/^agent = DQNAgent(2, 3, priority_replay=False)$/;"	v
 agent	pong_runner.py	/^agent = CNNDQNAgent(env.observation_space.shape, env.action_space.n, eps_decay_steps=100000,  memory_size=100000,$/;"	v
 agent	test.py	/^agent = DQNAgent(1,9, decay_steps=20000)$/;"	v
@@ -100,12 +101,14 @@ render	gym_pole.py	/^render = False$/;"	v
 render	gym_runner.py	/^render = False$/;"	v
 render	pong_runner.py	/^render = False$/;"	v
 reset	wrappers/atari_preprocessing.py	/^    def reset(self):$/;"	m	class:AtariPreprocessing
+reset	wrappers/flatten.py	/^    def reset(self):$/;"	m	class:Flatten
 reset	wrappers/stackobservation.py	/^    def reset(self):$/;"	m	class:StackObservation
 reset	wrappers/timelimit.py	/^    def reset(self):$/;"	m	class:TimeLimit
 sample	utility/random_buffer.py	/^    def sample(self, n_samples):$/;"	m	class:PriorityReplayBuffer
 sample	utility/random_buffer.py	/^    def sample(self, n_samples):$/;"	m	class:ReplayBuffer
 step	agents/agent.py	/^    def step(self, reward, observation):$/;"	m	class:Agent
 step	wrappers/atari_preprocessing.py	/^    def step(self, action):$/;"	m	class:AtariPreprocessing
+step	wrappers/flatten.py	/^    def step(self, action):$/;"	m	class:Flatten
 step	wrappers/stackobservation.py	/^    def step(self, action):$/;"	m	class:StackObservation
 step	wrappers/timelimit.py	/^    def step(self, action):$/;"	m	class:TimeLimit
 total_reward	gym_lunar.py	/^    total_reward = 0$/;"	v
