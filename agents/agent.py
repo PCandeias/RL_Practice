@@ -3,7 +3,6 @@ class Agent(object):
     def __init__(self, 
             observation_shape, 
             action_size, 
-            gamma=0.99,
             train_frequency=1,
             memory_size=50000,
             min_history_size=1000,
@@ -13,8 +12,6 @@ class Agent(object):
         self.action_size = action_size
         self.cur_step = 0
         self.replay_count = 0
-
-        self.gamma = gamma
 
         self.memory_size = memory_size
         self.min_history_size = min_history_size

@@ -7,8 +7,8 @@ import time
 n_episodes = 20000
 render = False
 
-env = gym.make('MountainCar-v0')
-agent = DQNAgent(2, 3, priority_replay=False)
+env = gym.make('Acrobot-v1')
+agent = DQNAgent(env.observation_space.shape, env.action_space.n, memory_size=100000, eps_decay_steps=100000, min_history_size=100, alpha=.00025, priority_replay=True)
 l_rewards = deque(maxlen=100)
 
 for i in range(n_episodes):
@@ -27,8 +27,8 @@ for i in range(n_episodes):
         else:
             action = agent.step(reward, obs)
     l_rewards.append(total_reward)
-    if ((i+1) % 100) == 0:
-        print('i: {} Avg rew: {} Eps: {}'.format(i, np.mean(np.array(l_rewards)), agent.eps))
+    if ((i+1) % 1) == 0:
+        print('i: {} Avg rew: {} Eps: {} Replay.Count: {}'.format(i, np.mean(np.array(l_rewards)), agent.eps, agent.replay_count))
             
 
 

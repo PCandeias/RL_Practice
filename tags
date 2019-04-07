@@ -62,7 +62,7 @@ action	pong_runner.py	/^            action = agent.step(reward, obs)$/;"	v
 action	pong_runner.py	/^    action = agent.begin_episode(obs)$/;"	v
 agent	gym_lunar.py	/^agent = DQNAgent(env.observation_space.shape, 4, alpha=0.00025, memory_size=10000, min_history_size=1000, gamma=0.99)$/;"	v
 agent	gym_pole.py	/^agent = DQNAgent(env.observation_space.shape, 2, memory_size=10000, eps_decay_steps=10000, min_history_size=100, alpha=.00025)$/;"	v
-agent	gym_runner.py	/^agent = DQNAgent(2, 3, priority_replay=False)$/;"	v
+agent	gym_runner.py	/^agent = DQNAgent(env.observation_space.shape, env.action_space.n, memory_size=100000, eps_decay_steps=100000, min_history_size=100, alpha=.00025, priority_replay=True)$/;"	v
 agent	pong_runner.py	/^agent = CNNDQNAgent(env.observation_space.shape, env.action_space.n, eps_decay_steps=100000,  memory_size=100000,$/;"	v
 agent	test.py	/^agent = DQNAgent(1,9, decay_steps=20000)$/;"	v
 append	utility/random_buffer.py	/^    def append(self, element):$/;"	m	class:PriorityReplayBuffer
@@ -78,7 +78,7 @@ end_episode	agents/agent.py	/^    def end_episode(self, reward):$/;"	m	class:Age
 env	gym_lunar.py	/^env = gym.make('LunarLander-v2')$/;"	v
 env	gym_pole.py	/^env = TimeLimit(env, 200)$/;"	v
 env	gym_pole.py	/^env = gym.make('CartPole-v1')$/;"	v
-env	gym_runner.py	/^env = gym.make('MountainCar-v0')$/;"	v
+env	gym_runner.py	/^env = gym.make('Acrobot-v1')$/;"	v
 env	pong_runner.py	/^env = AtariPreprocessing(env)$/;"	v
 env	pong_runner.py	/^env = StackObservation(env, 4)$/;"	v
 env	pong_runner.py	/^env = gym.make('PongNoFrameskip-v4')$/;"	v

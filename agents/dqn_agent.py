@@ -31,17 +31,8 @@ class DQNAgent(Agent):
                  load_filename=None):
         """
         """
-        super(DQNAgent, self).__init__(observation_shape, action_size, gamma=gamma, train_frequency=train_frequency,
+        super(DQNAgent, self).__init__(observation_shape, action_size, train_frequency=train_frequency,
                 memory_size=memory_size, min_history_size=min_history_size, batch_size=batch_size, verbose=verbose)
-        self.observation_shape = observation_shape
-        self.action_size = action_size
-        self.cur_step = 0
-        self.replay_count = 0
-
-        self.verbose = verbose
-        self.eval_mode = False
-        self.train_frequency = train_frequency
-        self.batch_size = batch_size
 
         self.gamma = gamma
         self.eps = 1.0 # Initialize eps
@@ -50,7 +41,6 @@ class DQNAgent(Agent):
         self.eps_eval = eps_eval
 
         # Initialize the Replay buffer
-        self.min_history_size = min_history_size
         self.priority_replay = priority_replay
         if priority_replay:
             self.memory = PriorityReplayBuffer(max_len=memory_size)
@@ -75,10 +65,10 @@ class DQNAgent(Agent):
 
     def _build_model(self, alpha=0.01):
         model = Sequential()
-        model.add(Dense(units=200, activation='relu', input_shape=self.observation_shape))
-        model.add(Dense(units=200, activation='relu'))
+        model.add(Dense(units=64, activation='relu', input_shape=self.observation_shape))
+        model.add(Dense(units=64, activation='relu'))
         model.add(Dense(units=self.action_size))
-        model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=alpha))
+        model.compile(loss='mse', optimizer=keras.optimizers.RMSprop(lr=alpha))
         return model
 
     def _load_model(self, load_filename):
@@ -156,5 +146,5 @@ class CNNDQNAgent(DQNAgent):
         model.add(Flatten())
         model.add(Dense(units=256, activation='relu'))
         model.add(Dense(units=self.action_size))
-        model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=alpha))
+        model.compile(loss='mse', optimizer=keras.optimizers.RMSprop(lr=alpha))
         return model

@@ -19,7 +19,7 @@ class ReplayBuffer(object):
         return [self.memory[idx] for idx in idxs], idxs
 
     def append(self, element):
-        if self.max_len >= len(self.memory):
+        if self.max_len > len(self.memory):
             self.memory.append(element)
         else:
             self.memory[self.cur_idx] = element
