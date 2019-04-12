@@ -140,11 +140,11 @@ class CNNDQNAgent(DQNAgent):
 
     def _build_model(self, alpha=0.01):
         model = Sequential()
-        model.add(Conv2D(32, kernel_size=8, strides=4, input_shape=self.observation_shape, activation='relu'))
-        model.add(Conv2D(64, kernel_size=4, strides=2, activation='relu'))
-        model.add(Conv2D(64, kernel_size=3, strides=1, activation='relu'))
+        model.add(Conv2D(32, kernel_size=(8,8), strides=4, input_shape=self.observation_shape, activation='relu'))
+        model.add(Conv2D(64, kernel_size=(4,4), strides=2, activation='relu'))
+        model.add(Conv2D(64, kernel_size=(3,3), strides=1, activation='relu'))
         model.add(Flatten())
-        model.add(Dense(units=256, activation='relu'))
+        model.add(Dense(units=512, activation='relu'))
         model.add(Dense(units=self.action_size))
         model.compile(loss='mse', optimizer=keras.optimizers.RMSprop(lr=alpha))
         return model

@@ -54,16 +54,16 @@ a	test.py	/^            a = agent.step(reward, np.ones(1) * val)$/;"	v
 a	test.py	/^    a = agent.begin_episode(np.ones(1) * 0)$/;"	v
 action	gym_lunar.py	/^            action = agent.step(reward, obs)$/;"	v
 action	gym_lunar.py	/^    action = agent.begin_episode(obs)$/;"	v
-action	gym_pole.py	/^            action = agent.step(reward, obs)$/;"	v
-action	gym_pole.py	/^    action = agent.begin_episode(obs)$/;"	v
+action	gym_pole.py	/^                action = agent.step(reward, obs)$/;"	v
+action	gym_pole.py	/^        action = agent.begin_episode(obs)$/;"	v
 action	gym_runner.py	/^            action = agent.step(reward, obs)$/;"	v
 action	gym_runner.py	/^    action = agent.begin_episode(obs)$/;"	v
 action	pong_runner.py	/^            action = agent.step(reward, obs)$/;"	v
 action	pong_runner.py	/^    action = agent.begin_episode(obs)$/;"	v
 agent	gym_lunar.py	/^agent = DQNAgent(env.observation_space.shape, 4, alpha=0.00025, memory_size=10000, min_history_size=1000, gamma=0.99)$/;"	v
-agent	gym_pole.py	/^agent = DQNAgent(env.observation_space.shape, 2, memory_size=10000, eps_decay_steps=10000, min_history_size=100, alpha=.00025)$/;"	v
+agent	gym_pole.py	/^    agent = DQNAgent(env.observation_space.shape, 2, memory_size=10000, eps_decay_steps=10000, min_history_size=100, alpha=.00025)$/;"	v
 agent	gym_runner.py	/^agent = DQNAgent(env.observation_space.shape, env.action_space.n, memory_size=100000, eps_decay_steps=100000, min_history_size=100, alpha=.00025, priority_replay=True)$/;"	v
-agent	pong_runner.py	/^agent = CNNDQNAgent(env.observation_space.shape, env.action_space.n, eps_decay_steps=100000,  memory_size=100000,$/;"	v
+agent	pong_runner.py	/^agent = CNNDQNAgent(env.observation_space.shape, env.action_space.n, eps_decay_steps=1000000,  memory_size=100000,$/;"	v
 agent	test.py	/^agent = DQNAgent(1,9, decay_steps=20000)$/;"	v
 append	utility/random_buffer.py	/^    def append(self, element):$/;"	m	class:PriorityReplayBuffer
 append	utility/random_buffer.py	/^    def append(self, element):$/;"	m	class:ReplayBuffer
@@ -71,7 +71,7 @@ begin_episode	agents/agent.py	/^    def begin_episode(self, observation):$/;"	m	
 copy_model	utility/utility.py	/^def copy_model(model):$/;"	f
 cur_it	test.py	/^    cur_it = 0$/;"	v
 done	gym_lunar.py	/^    done = False$/;"	v
-done	gym_pole.py	/^    done = False$/;"	v
+done	gym_pole.py	/^        done = False$/;"	v
 done	gym_runner.py	/^    done = False$/;"	v
 done	pong_runner.py	/^    done = False$/;"	v
 end_episode	agents/agent.py	/^    def end_episode(self, reward):$/;"	m	class:Agent
@@ -84,7 +84,7 @@ env	pong_runner.py	/^env = StackObservation(env, 4)$/;"	v
 env	pong_runner.py	/^env = gym.make('PongNoFrameskip-v4')$/;"	v
 file_exists	utility/utility.py	/^def file_exists(filename):$/;"	f
 l_rewards	gym_lunar.py	/^l_rewards = deque(maxlen=100)$/;"	v
-l_rewards	gym_pole.py	/^l_rewards = deque(maxlen=100)$/;"	v
+l_rewards	gym_pole.py	/^    l_rewards = deque(maxlen=100)$/;"	v
 l_rewards	gym_runner.py	/^l_rewards = deque(maxlen=100)$/;"	v
 l_rewards	pong_runner.py	/^l_rewards = deque(maxlen=100)$/;"	v
 modules	wrappers/__init__.py	/^modules = glob.glob(dirname(__file__)+"\/*.py")$/;"	v
@@ -93,7 +93,7 @@ n_episodes	gym_pole.py	/^n_episodes = 20000$/;"	v
 n_episodes	gym_runner.py	/^n_episodes = 20000$/;"	v
 n_episodes	pong_runner.py	/^n_episodes = 100000$/;"	v
 obs	gym_lunar.py	/^    obs = env.reset()$/;"	v
-obs	gym_pole.py	/^    obs = env.reset()$/;"	v
+obs	gym_pole.py	/^        obs = env.reset()$/;"	v
 obs	gym_runner.py	/^    obs = env.reset()$/;"	v
 obs	pong_runner.py	/^    obs = env.reset()$/;"	v
 render	gym_lunar.py	/^render = False$/;"	v
@@ -106,13 +106,14 @@ reset	wrappers/stackobservation.py	/^    def reset(self):$/;"	m	class:StackObser
 reset	wrappers/timelimit.py	/^    def reset(self):$/;"	m	class:TimeLimit
 sample	utility/random_buffer.py	/^    def sample(self, n_samples):$/;"	m	class:PriorityReplayBuffer
 sample	utility/random_buffer.py	/^    def sample(self, n_samples):$/;"	m	class:ReplayBuffer
+session	gym_pole.py	/^session = tf.Session()$/;"	v
 step	agents/agent.py	/^    def step(self, reward, observation):$/;"	m	class:Agent
 step	wrappers/atari_preprocessing.py	/^    def step(self, action):$/;"	m	class:AtariPreprocessing
 step	wrappers/flatten.py	/^    def step(self, action):$/;"	m	class:Flatten
 step	wrappers/stackobservation.py	/^    def step(self, action):$/;"	m	class:StackObservation
 step	wrappers/timelimit.py	/^    def step(self, action):$/;"	m	class:TimeLimit
 total_reward	gym_lunar.py	/^    total_reward = 0$/;"	v
-total_reward	gym_pole.py	/^    total_reward = 0$/;"	v
+total_reward	gym_pole.py	/^        total_reward = 0$/;"	v
 total_reward	gym_runner.py	/^    total_reward = 0$/;"	v
 total_reward	pong_runner.py	/^    total_reward = 0$/;"	v
 total_weight	utility/random_buffer.py	/^    def total_weight(self):$/;"	m	class:PriorityReplayBuffer

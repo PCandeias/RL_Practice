@@ -19,8 +19,8 @@ print(env.observation_space.shape)
 env = StackObservation(env, 4)
 print(env.observation_space.shape)
 
-agent = CNNDQNAgent(env.observation_space.shape, env.action_space.n, eps_decay_steps=100000,  memory_size=100000,
-        min_history_size=10000, freeze_target_frequency=500, train_frequency=4, gamma=1.0, alpha=0.0001, double_q=False, fixed_q=False, priority_replay=False)
+agent = CNNDQNAgent(env.observation_space.shape, env.action_space.n, eps_decay_steps=1000000,  memory_size=100000,
+        min_history_size=10000, freeze_target_frequency=500, train_frequency=4, gamma=0.99, alpha=0.00025)
 
 l_rewards = deque(maxlen=100)
 
@@ -41,4 +41,5 @@ for i in range(n_episodes):
 
     l_rewards.append(total_reward)
     if ((i+1) % 1) == 0:
-        print('i: {} Avg rew: {} Eps: {}'.format(i, np.mean(np.array(l_rewards)), agent.eps))
+        print('i: {} Avg rew: {} Eps: {} ReplayCount:{}'.format(i, np.mean(np.array(l_rewards)), agent.eps,
+            agent.replay_count))
