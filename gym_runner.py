@@ -108,7 +108,7 @@ class GymRunner(object):
         for e in range(n_episodes):
             total_steps += self._run_one_episode()
             mean = np.mean(np.array(self.l_rewards))
-            if self.save_filename and self.ep_number >= 500 and mean > self.b_mean:
+            if self.save_filename and self.ep_number >= 300 and mean > self.b_mean:
                 print("Model outperformed mean. Prev mean: {0} New mean: {1}".format(self.b_mean, mean))
                 self.agent.save_model(self.save_filename)
                 self.b_mean = mean

@@ -71,12 +71,12 @@ class DQNAgent(Agent):
         model.compile(loss='mse', optimizer=keras.optimizers.RMSprop(lr=alpha))
         return model
 
-    def _load_model(self, load_filename):
-        self.model = load_model(utility.models_directory + load_filename + "_dqn.h5")
+    def load_model(self, load_filename):
+        self.model = load_model(load_filename + "_dqn.h5")
         self.target_model = utility.copy_model(self.model)
 
-    def _save_model(self, save_filename):
-        self.model.save(utility.models_directory + save_filename + "_dqn.h5")
+    def save_model(self, save_filename):
+        self.model.save(save_filename + "_dqn.h5")
 
     # get the predictions for a given state
     def _get_predictions(self, observation):
