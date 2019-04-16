@@ -72,19 +72,24 @@ class DQNAgent(Agent):
         return model
 
     def load_model(self, load_filename):
-        self.model = load_model(load_filename + "_dqn.h5")
-        self.target_model = utility.copy_model(self.model)
+        self.model = load_model(load_filename + ".h5")
+        if self.fixed_q:
+            self.target_model = utility.copy_model(self.model)
+        else:
+            self.target_model = self.model
 
     def save_model(self, save_filename):
-        self.model.save(save_filename + "_dqn.h5")
+        self.model.save(save_filename + ".h5")
 
     # get the predictions for a given state
     def _get_predictions(self, observation):
         return self.model.predict(np.array(observation)[np.newaxis,:])
 
     # select an action according to an eps-greedy policy
-    def _select_action(self, observation, eps=None):
-        if eps is None:
+    def _select_action(self, observation):
+        if self.eval_mode:
+            eps = self.eps_eval
+        else:
             eps = self.eps
         return np.random.randint(0, self.action_size) if eps >= np.random.rand() else np.argmax(self._get_predictions(observation))
 
@@ -146,5 +151,5 @@ class CNNDQNAgent(DQNAgent):
         model.add(Flatten())
         model.add(Dense(units=512, activation='relu'))
         model.add(Dense(units=self.action_size))
-        model.compile(loss='mse', optimizer=keras.optimizers.RMSprop(lr=alpha))
+        model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=alpha, decay=0.95, epsilon=0.00001))
         return model
