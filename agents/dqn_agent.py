@@ -151,5 +151,5 @@ class CNNDQNAgent(DQNAgent):
         model.add(Flatten())
         model.add(Dense(units=512, activation='relu'))
         model.add(Dense(units=self.action_size))
-        model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=alpha, decay=0.95, epsilon=0.00001))
+        model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=alpha))
         return model
