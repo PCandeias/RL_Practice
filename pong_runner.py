@@ -1,4 +1,4 @@
-from agents.dqn_agent import DQNAgent
+# from agents.dqn_agent import DQNAgent
 from agents.dqn_agent import CNNDQNAgent
 from collections import deque
 import numpy as np
@@ -7,6 +7,7 @@ from wrappers.atari_preprocessing import AtariPreprocessing
 from wrappers.stackobservation import StackObservation
 
 import matplotlib.pyplot as plt
+from dopamine.agents.dqn.dqn_agent import DQNAgent
 
 from gym_runner import GymRunner
 import gym
@@ -18,13 +19,20 @@ n_episodes = 100000
 
 
 def create_agent_fn(sess, env):
-    agent = CNNDQNAgent(env.observation_space.shape, env.action_space.n, eps_decay_steps=1000000,  memory_size=100000, min_history_size=10000, freeze_target_frequency=500, train_frequency=4, gamma=0.99, alpha=0.00025)
+    # agent = CNNDQNAgent(env.observation_space.shape, env.action_space.n, eps_decay_steps=1000000,  memory_size=100000, min_history_size=10000, freeze_target_frequency=500, train_frequency=4, gamma=0.99, alpha=0.00025)
+    agent = DQNAgent(
+            sess, 
+            env.action_space.n,
+            observation_shape=env.observation_space.shape)
+            # stack_size=1)
     return agent
+
 
 def create_env_fn():
     env = gym.make('PongNoFrameskip-v4')
     env = AtariPreprocessing(env)
-    env = StackObservation(env, 4)
+    print(env.action_space.n)
+    # env = StackObservation(env, 4)
     return env
 
 
