@@ -15,11 +15,11 @@ class AtariPreprocessing(gym.Wrapper):
         observation[observation == 144] = 0
         observation[observation == 109] = 0
         observation[observation != 0] = 1
-
+        
         n_observation = np.max(np.array([observation, self.last_obs]), axis=0)
         self.last_obs = observation
 
-        return n_observation.astype(np.uint8)
+        return n_observation.reshape((80,80,1)).astype(np.uint8)
 
     def step(self, action):
         obs, reward, done, info = self.env.step(action)
